@@ -148,7 +148,7 @@ Since the `ionic serve` command continues to run in foreground, to be able to ru
 
 Let us update the application to [display a list of people](http://blog.ionic.io/10-minutes-with-ionic-2-calling-an-api/) by fetching data from say https://randomuser.me/api/
 
-* Create a new Provider
+#### 2.3.1 Create a new Provider
 
 ```
 $ ionic generate provider PeopleService
@@ -157,7 +157,7 @@ $ ionic generate provider PeopleService
 
 The above command will generate an `@Injectable` class called `PeopleServiceProvider` in `src/providers/people-service/people-service.ts`
 
-* Add code in provider to get people data from https://randomuser.me/api/
+#### 2.3.2 Add code in provider to get people data from https://randomuser.me/api/
 
 Update `src/providers/people-service/people-service.ts` as below:
 
@@ -198,7 +198,7 @@ export class PeopleServiceProvider {
 }
 </code></pre>
 
-* Add the HttpModule to your app.module.ts
+#### 2.3.3 Add the HttpModule to your app.module.ts
 
 Add the HttpModule to your `src/app/app.module.ts` as shown below:
 
@@ -219,7 +219,7 @@ import { ErrorHandler, NgModule } from '@angular/core';
 ...
 </code></pre>
 
-* Modify home page to display the list of people
+#### 2.3.4 Modify home page to display the list of people
 
   - Update `src/pages/home/home.ts` as below:
 
@@ -269,7 +269,7 @@ export class HomePage {
 </ion-content>
 ```
 
-* Preview new app
+#### 2.3.5 Preview new app
 
 Once you save all the above changes, back in console where `ionic serve` is running, you can see an automatic build being run as shown below:
 
