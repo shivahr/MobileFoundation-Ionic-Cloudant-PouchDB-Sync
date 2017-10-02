@@ -137,7 +137,7 @@ $ ionic serve
        External: http://192.xxx.xxx.xxx:8100, http://9.xxx.xxx.xxx:8100
 ```
 
-The above command also launches the Cordova [live-reload](https://www.npmjs.com/package/cordova-plugin-browsersync) workflow. The live-reload feature triggers an automatic project build and refresh of the application in browser whenever we save changes to the application source files.
+The above command also launches the Cordova [live-reload](https://www.npmjs.com/package/cordova-plugin-browsersync) workflow. The live-reload feature watches for changes in your source files and automatically builds the project and reloads the application in browser.
 
 Since the `ionic serve` command continues to run in foreground, to be able to run any further Cordova/Ionic commands open a new terminal and change directory to the project.
 
@@ -258,4 +258,23 @@ Update `src/pages/home/home.html` as below:
   </ion-list>
 </ion-content>
 ```
- 
+
+Once you save all the above changes, back in console where `ionic serve` is running, you can see an automatic build being run as shown below:
+```
+...
+[17:20:29]  lint finished in 7.28 s 
+[17:27:00]  build started ... 
+[17:27:00]  deeplinks update started ... 
+[17:27:00]  deeplinks update finished in 9 ms 
+[17:27:00]  transpile started ... 
+[17:27:03]  transpile finished in 2.26 s 
+[17:27:03]  webpack update started ... 
+[17:27:04]  webpack update finished in 1.66 s 
+[17:27:04]  sass update started ... 
+[17:27:08]  sass update finished in 3.30 s 
+[17:27:08]  build finished in 7.26 s 
+```
+
+The app being previewed in browser is reloaded as shown below:
+
+<img src="doc/source/images/PreviewAppInBrowser.png" alt="Preview app in browser using cordova serve" width="300" border="10" />
