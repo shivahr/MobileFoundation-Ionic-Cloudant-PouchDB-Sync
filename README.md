@@ -1,5 +1,12 @@
 # MobileFirst-Ionic-GettingStarted
 
+## Steps
+1. [Setup Ionic and MFP CLI](#step-1-setup-ionic-and-mfp-cli)
+2. [Create Ionic Sample Application](#step-2-create-ionic-sample-application)
+  - 2.1 [Create a new Ionic project](#21-create-a-new-ionic-project)
+  - 2.2 [Start a local dev server for app dev/testing](#22-start-a-local-dev-server-for-app-devtesting)
+  - 2.3 [Update application to display a list of people](#23-update-application-to-display-a-list-of-people)
+
 ## Step 1. Setup Ionic and MFP CLI
 * Install Node.js by downloading the setup from https://nodejs.org/en/ (Node.js 6.x or above)
 ```
