@@ -1,6 +1,6 @@
 # MobileFirst-Ionic-GettingStarted
 
-## Setup Ionic and MFP CLI
+## Step 1. Setup Ionic and MFP CLI
 * Install Node.js by downloading the setup from https://nodejs.org/en/ (Node.js 6.x or above)
 ```
 $ node --version
@@ -65,7 +65,7 @@ apm install atom-typescript
 
 Note: If you are on Windows, instead of using sudo, run the above commands in a command prompt opened in administrative mode.
 
-## Create Ionic Sample Application
+## Step 2. Create Ionic Sample Application
 
 Ionic quick tutorials:
 * 10 Minutes with Ionic 2: Hello World http://blog.ionic.io/10-minutes-with-ionic-2-hello-world/
@@ -73,7 +73,9 @@ Ionic quick tutorials:
 * 10 Minutes with Ionic 2: Calling an API http://blog.ionic.io/10-minutes-with-ionic-2-calling-an-api/
 * 10 Minutes with Ionic 2: Using the Camera with Ionic Native http://blog.ionic.io/10-minutes-with-ionic-2-using-the-camera-with-ionic-native/
 
-### Create a new Ionic project with blank starter template
+### 2.1 Create a new Ionic project
+
+Create a new Ionic project with blank starter template
 ```
 $ ionic start MobileFirst-Ionic-GettingStarted blank
 ✔ Creating directory ./MobileFirst-Ionic-GettingStarted - done!
@@ -103,8 +105,9 @@ Change directory to the newly created project:
 $ cd MobileFirst-Ionic-GettingStarted
 ```
 
-### Start a local dev server for app dev/testing
-To see how the blank project looks like, Ionic/Cordova provides a feature by the which the application can be launched in a browser by using the `cordova serve` or `ionic serve` as shown below:
+### 2.2 Start a local dev server for app dev/testing
+
+To get a preview of the application, Ionic/Cordova provides a feature by the which the application can be launched in a browser by using the `cordova serve` or `ionic serve` as shown below:
 ```
 $ ionic serve
 [INFO] Starting app-scripts server: --address 0.0.0.0 --port 8100 
@@ -141,17 +144,20 @@ The above command also launches the Cordova [live-reload](https://www.npmjs.com/
 
 Since the `ionic serve` command continues to run in foreground, to be able to run any further Cordova/Ionic commands open a new terminal and change directory to the project.
 
-### Update application to display a list of people 
+### 2.3 Update application to display a list of people 
 
-Add a provider class to get a list of people data from https://randomuser.me/api/
+Let us update the application to [display a list of people](http://blog.ionic.io/10-minutes-with-ionic-2-calling-an-api/) by fetching data from say https://randomuser.me/api/
 
-Create a new Provider
+* Create a new Provider
+
 ```
 $ ionic generate provider PeopleService
 [OK] Generated a provider named PeopleService!
 ```
 
 The above command will generate an `@Injectable` class called `PeopleServiceProvider` in `src/providers/people-service/people-service.ts`
+
+* Add code in provider to get people data from https://randomuser.me/api/
 
 Update `src/providers/people-service/people-service.ts` as below:
 
@@ -192,6 +198,8 @@ export class PeopleServiceProvider {
 }
 </code></pre>
 
+* Add the HttpModule to your app.module.ts
+
 Add the HttpModule to your `src/app/app.module.ts` as shown below:
 
 <pre><code>
@@ -211,9 +219,10 @@ import { ErrorHandler, NgModule } from '@angular/core';
 ...
 </code></pre>
 
-Modify home page to display the list of people
+* Modify home page to display the list of people
 
-Update `src/pages/home/home.ts` as below:
+  - Update `src/pages/home/home.ts` as below:
+
 <pre><code>
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
@@ -236,7 +245,8 @@ export class HomePage {
 }
 </code></pre>
 
-Update `src/pages/home/home.html` as below:
+  - Update `src/pages/home/home.html` as below:
+
 ```
 <ion-header>
   <ion-navbar>
@@ -259,7 +269,10 @@ Update `src/pages/home/home.html` as below:
 </ion-content>
 ```
 
+* Preview new app
+
 Once you save all the above changes, back in console where `ionic serve` is running, you can see an automatic build being run as shown below:
+
 ```
 ...
 [17:20:29]  lint finished in 7.28 s 
