@@ -298,3 +298,40 @@ Once you save all the above changes, back in console where `ionic serve` is runn
 The app being previewed in browser is reloaded as shown below:
 
 <img src="doc/source/images/PreviewAppInBrowser.png" alt="Preview app in browser using cordova serve" width="300" border="10" />
+
+## Step 3. Create an Adapter in MobileFirst Server to fetch data from Cloudant database
+
+### 3.1 Create Cloudant database and populate with people data
+
+* Log in to [Bluemix Dashboard](https://console.bluemix.net/) and create [*Cloudant NoSQL DB*](https://console.bluemix.net/catalog/services/cloudant-nosql-db) service.
+* From the welcome page of Cloudant service that you just created, launch the Cloudant Dashboard.
+* In the Cloudant dashboard, click on *Databases*.
+* Click on *Create Database*. Specify name of database as `employees` as shown below. Click *Create*.
+
+<img src="doc/source/images/CreateCloudantDatabase.png" alt="Preview app in browser using cordova serve" width="800" border="10" />
+
+Once the database is created, the dashboard will update to show the documents inside `employees` database (which, as expected, will be empty to begin with).
+
+* Click *Create Document*. For document content, after the auto populated `_id` field, enter `name`, `email` and `picture` information fetched from https://randomuser.me/api/?results=10 as shown below.
+
+```
+{
+  "_id": "7fc63023799dfda9582609e75127b4fa",
+  "gender": "female",
+  "name": {
+    "title": "mademoiselle",
+    "first": "eloane",
+    "last": "barbier"
+  },
+  "email": "eloane.barbier@example.com",
+  "picture": {
+    "large": "https://randomuser.me/api/portraits/women/61.jpg",
+    "medium": "https://randomuser.me/api/portraits/med/women/61.jpg",
+    "thumbnail": "https://randomuser.me/api/portraits/thumb/women/61.jpg"
+  }
+}
+```
+
+Click *Create Document* to create/save the document.
+
+Repeat the above steps and create documents for the remaining user data.
