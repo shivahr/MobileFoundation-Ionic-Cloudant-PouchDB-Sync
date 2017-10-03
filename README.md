@@ -342,7 +342,7 @@ Click *Create Document* to create/save the document.
 * Repeat the above steps and create documents for the remaining user data.
 
 ### 3.2 Create Bluemix Mobile Foundation service and configure MFP CLI
-* Log in to [Bluemix Dashboard](https://console.bluemix.net/) and create [*Cloudant NoSQL DB*](https://console.bluemix.net/catalog/services/mobile-foundation) service. Make a note of the admin password.
+* Log in to [Bluemix Dashboard](https://console.bluemix.net/) and create [*Mobile Foundation*](https://console.bluemix.net/catalog/services/mobile-foundation) service. Make a note of the admin password.
 
 * Back on your local machine, configure MFP CLI to work with Bluemix Mobile Foundation server by running following command in console.
 
