@@ -6,6 +6,11 @@
   - 2.1 [Create a new Ionic project](#21-create-a-new-ionic-project)
   - 2.2 [Start a local dev server for app dev/testing](#22-start-a-local-dev-server-for-app-devtesting)
   - 2.3 [Update application to display a list of people](#23-update-application-to-display-a-list-of-people)
+3. [Create an Adapter in MobileFirst Server to fetch data from Cloudant database](#step-3-create-an-adapter-in-mobilefirst-server-to-fetch-data-from-cloudant-database)
+  - 3.1 [Create Cloudant database and populate with people data](#31-create-cloudant-database-and-populate-with-people-data)
+  - 3.2 [Create Bluemix Mobile Foundation service and configure MFP CLI](#32-create-bluemix-mobile-foundation-service-and-configure-mfp-cli)
+  - 3.3 [Create an MFP adapter to query people data](#33-create-an-mfp-adapter-to-query-people-data)
+4. [Update Ionic app to fetch data from MobileFirst Adapter](#step-4-update-ionic-app-to-fetch-data-from-mobilefirst-adapter)
 
 ## Step 1. Setup Ionic and MFP CLI
 * Install Node.js by downloading the setup from https://nodejs.org/en/ (Node.js 6.x or above)
@@ -445,4 +450,4 @@ Successfully deployed adapter
   - Show/Hide -> /getEmployees -> Click on OFF to enable authentication -> Select Default Scope -> Click Authorize
   - Click *try it out*
 
-## Step 4. Update ionic-2 app to fetch data from MobileFirst Adapter
+## Step 4. Update Ionic app to fetch data from MobileFirst Adapter
