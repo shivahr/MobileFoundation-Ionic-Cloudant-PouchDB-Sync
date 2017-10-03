@@ -334,4 +334,115 @@ Once the database is created, the dashboard will update to show the documents in
 
 Click *Create Document* to create/save the document.
 
-Repeat the above steps and create documents for the remaining user data.
+* Repeat the above steps and create documents for the remaining user data.
+
+### 3.2 Create Bluemix Mobile Foundation service and configure MFP CLI
+* Log in to [Bluemix Dashboard](https://console.bluemix.net/) and create [*Cloudant NoSQL DB*](https://console.bluemix.net/catalog/services/mobile-foundation) service. Make a note of the admin password.
+
+* Back on your local machine, configure MFP CLI to work with Bluemix Mobile Foundation server by running following command in console.
+
+```
+$ mfpdev server add
+? Enter the name of the new server profile: Bluemix-MFP
+? Enter the fully qualified URL of this server: https://mobilefoundation-71-hb-server.mybluemix.net:443
+? Enter the MobileFirst Server administrator login ID: admin
+? Enter the MobileFirst Server administrator password: **********
+? Save the administrator password for this server?: Yes
+? Enter the context root of the MobileFirst administration services: mfpadmin
+? Enter the MobileFirst Server connection timeout in seconds: 30
+? Make this server the default?: No
+Verifying server configuration...
+The following runtimes are currently installed on this server: mfp
+Server profile 'Bluemix-MFP' added successfully.
+
+$ mfpdev server info
+Name         URL
+--------------------------------------------------------------------------------------
+shivahr-mfp  https://mobilefoundation-71-hb-server.mybluemix.net:443        [Default]
+--------------------------------------------------------------------------------------
+```
+
+### 3.3 Create an MFP adapter to query people data
+
+```
+$ cd ..
+$ mfpdev adapter create
+? Enter adapter name: peopleAdapter
+? Select adapter type: HTTP
+? Enter group ID: com.mfp.adapters
+Creating http adapter: peopleAdapter...
+Successfully created adapter: peopleAdapter
+```
+
+Update `src/main/adapter-resources/adapter.xml` as below after changing domain, username and password to point to your Cloudant service:
+
+```
+    <connectivity>
+      <connectionPolicy xsi:type="http:HTTPConnectionPolicyType">
+        <protocol>https</protocol>
+        <domain>YourCloudantDomain-bluemix.cloudant.com</domain>
+        <port>443</port>
+        <connectionTimeoutInMilliseconds>30000</connectionTimeoutInMilliseconds>
+        <socketTimeoutInMilliseconds>30000</socketTimeoutInMilliseconds>
+        <authentication>
+          <basic/>
+            <serverIdentity>
+              <username>YourCloudantUsername</username>
+              <password>YourCloudantPassword</password>
+            </serverIdentity>
+        </authentication>
+        <maxConcurrentConnectionsPerNode>50</maxConcurrentConnectionsPerNode>
+        <!-- Following properties used by adapter's key manager for choosing specific certificate from key store
+        <sslCertificateAlias></sslCertificateAlias>
+        <sslCertificatePassword></sslCertificatePassword>
+        -->
+      </connectionPolicy>
+    </connectivity>
+    <procedure name="getPeople" scope = "restrictedData"/>
+```
+
+Update `js/peopleAdapter-impl.js` as below:
+
+```
+function getPeople() {
+    var path = 'employees' + '/_all_docs?include_docs=true';
+    var input = {
+        method : 'get',
+        returnedContentType : 'json',
+        path : path,
+    };
+    var response = MFP.Server.invokeHttp(input);
+    if (!response.rows) {
+        response.isSuccessful = false;
+        return response;
+    } else {
+        var results = [];
+        for (var i=0; i < response.rows.length; i++) {
+            results.push(response.rows[i].doc);
+        }
+        return {'rows': results};
+    }
+}
+```
+
+* Build and Deploy the MFP adapter
+
+```
+$ cd peopleAdapter/
+$ mfpdev adapter build
+Building adapter...
+Successfully built adapter
+$ mfpdev adapter deploy
+Successfully deployed adapter
+```
+ 
+* Create credentials to test Adapter REST API
+  - MobileFirst Operations Console -> Runtime Settings -> Confidential Clients -> New
+  - ID: test, Secret: test, Allowed Scope: **
+ 
+* Test Adapter REST API
+  - MobileFirst Operations Console -> Adapters -> employeeAdapter -> Resources -> View Swagger Docs
+  - Show/Hide -> /getEmployees -> Click on OFF to enable authentication -> Select Default Scope -> Click Authorize
+  - Click *try it out*
+
+## Step 4. Update ionic-2 app to fetch data from MobileFirst Adapter
