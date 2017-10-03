@@ -369,6 +369,10 @@ Bluemix-MFP  https://mobilefoundation-71-hb-server.mybluemix.net:443        [Def
 
 ### 3.3 Create an MFP adapter to query people data
 
+#### 3.3.1 Create an MFP adapter of type HTTP
+
+Use MFP CLI to create an MFP adapter of type HTTP as shown below.
+
 ```
 $ cd ..
 $ mfpdev adapter create
@@ -379,32 +383,53 @@ Creating http adapter: peopleAdapter...
 Successfully created adapter: peopleAdapter
 ```
 
-Update `src/main/adapter-resources/adapter.xml` as below after changing domain, username and password to point to your Cloudant service:
+Change directory to the newly created adapter source.
+
+#### 3.3.2 Point the created adapter to your Cloudant service instance
+
+
+Update `src/main/adapter-resources/adapter.xml` as below. Change domain, username and password to point to your Cloudant service:
 
 ```
-    <connectivity>
-      <connectionPolicy xsi:type="http:HTTPConnectionPolicyType">
-        <protocol>https</protocol>
-        <domain>YourCloudantDomain-bluemix.cloudant.com</domain>
-        <port>443</port>
-        <connectionTimeoutInMilliseconds>30000</connectionTimeoutInMilliseconds>
-        <socketTimeoutInMilliseconds>30000</socketTimeoutInMilliseconds>
-        <authentication>
-          <basic/>
-            <serverIdentity>
-              <username>YourCloudantUsername</username>
-              <password>YourCloudantPassword</password>
-            </serverIdentity>
-        </authentication>
-        <maxConcurrentConnectionsPerNode>50</maxConcurrentConnectionsPerNode>
-        <!-- Following properties used by adapter's key manager for choosing specific certificate from key store
-        <sslCertificateAlias></sslCertificateAlias>
-        <sslCertificatePassword></sslCertificatePassword>
-        -->
-      </connectionPolicy>
-    </connectivity>
-    <procedure name="getPeople" scope = "restrictedData"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<mfp:adapter name="peopleAdapter"
+			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xmlns:mfp="http://www.ibm.com/mfp/integration"
+			 xmlns:http="http://www.ibm.com/mfp/integration/http">
+
+  <displayName>peopleAdapter</displayName>
+  <description>peopleAdapter</description>
+  <connectivity>
+    <connectionPolicy xsi:type="http:HTTPConnectionPolicyType">
+      <protocol>https</protocol>
+      <domain>YourCloudantDomain-bluemix.cloudant.com</domain>
+      <port>443</port>
+      <connectionTimeoutInMilliseconds>30000</connectionTimeoutInMilliseconds>
+      <socketTimeoutInMilliseconds>30000</socketTimeoutInMilliseconds>
+      <authentication>
+        <basic/>
+          <serverIdentity>
+            <username>YourCloudantUsername</username>
+            <password>YourCloudantPassword</password>
+          </serverIdentity>
+      </authentication>
+      <maxConcurrentConnectionsPerNode>50</maxConcurrentConnectionsPerNode>
+    </connectionPolicy>
+  </connectivity>
+  <procedure name="getPeople" scope = "restrictedData"/>
+</mfp:adapter>
 ```
+
+  How to get the domain, username and password for your Cloudant service instance?
+
+  - In Bluemix Dashboard, under *Services*, click on your Cloudant service instance. 
+  - In the Cloudant service overview page, click on *Service credentials* and then click on *View Credentials* as shown below.
+
+  <img src="doc/source/images/GettingCloudantCredentials.png" alt="Getting Cloudant service credentials" width="800" border="10" />
+
+  - Use the *host* value for *domain*.
+
+#### 3.3.3 Write adapter method to read data from Cloudant database
 
 Update `js/peopleAdapter-impl.js` as below:
 
@@ -430,7 +455,7 @@ function getPeople() {
 }
 ```
 
-* Build and Deploy the MFP adapter
+#### 3.3.4 Build and Deploy the MFP adapter
 
 ```
 $ cd peopleAdapter/
@@ -440,7 +465,9 @@ Successfully built adapter
 $ mfpdev adapter deploy
 Successfully deployed adapter
 ```
- 
+
+#### 3.3.5 Test the newly created MFP adapter
+
 * Create credentials to test Adapter REST API
   - MobileFirst Operations Console -> Runtime Settings -> Confidential Clients -> New
   - ID: test, Secret: test, Allowed Scope: **
