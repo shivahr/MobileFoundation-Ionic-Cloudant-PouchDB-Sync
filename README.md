@@ -317,7 +317,7 @@ The app being previewed in browser is reloaded as shown below:
 
 Once the database is created, the dashboard will update to show the documents inside `employees` database (which, as expected, will be empty to begin with).
 
-* Click *Create Document*. For document content, after the auto populated `_id` field, enter `name`, `email` and `picture` information fetched from https://randomuser.me/api/?results=10 as shown below.
+* Click *Create Document*. Under document content, after the auto populated `_id` field, enter `name`, `email` and `picture` information fetched from https://randomuser.me/api/?results=10 as shown below.
 
 ```
 {
@@ -363,7 +363,7 @@ Server profile 'Bluemix-MFP' added successfully.
 $ mfpdev server info
 Name         URL
 --------------------------------------------------------------------------------------
-shivahr-mfp  https://mobilefoundation-71-hb-server.mybluemix.net:443        [Default]
+Bluemix-MFP  https://mobilefoundation-71-hb-server.mybluemix.net:443        [Default]
 --------------------------------------------------------------------------------------
 ```
 
