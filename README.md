@@ -463,6 +463,8 @@ $ mfpdev adapter build
 Building adapter...
 Successfully built adapter
 $ mfpdev adapter deploy
+Verifying server configuration...
+Deploying adapter to runtime mfp on https://mobilefoundation-71-hb-server.mybluemix.net:443/mfpadmin...
 Successfully deployed adapter
 ```
 
@@ -473,8 +475,8 @@ Successfully deployed adapter
   - ID: test, Secret: test, Allowed Scope: **
  
 * Test Adapter REST API
-  - MobileFirst Operations Console -> Adapters -> employeeAdapter -> Resources -> View Swagger Docs
-  - Show/Hide -> /getEmployees -> Click on OFF to enable authentication -> Select Default Scope -> Click Authorize
+  - MobileFirst Operations Console -> Adapters -> peopleAdapter -> Resources -> View Swagger Docs
+  - Show/Hide -> /getPeople -> Click on OFF to enable authentication -> Select Default Scope -> Click Authorize
   - Click *try it out*
 
 ## Step 4. Update Ionic app to fetch data from MobileFirst Adapter
