@@ -6,6 +6,7 @@
   - 2.1 [Create a new Ionic project](#21-create-a-new-ionic-project)
   - 2.2 [Start a local dev server for app dev/testing](#22-start-a-local-dev-server-for-app-devtesting)
   - 2.3 [Update application to display a list of people](#23-update-application-to-display-a-list-of-people)
+  - 2.4 [Run application on Android phone](#24-run-application-on-android-phone)
 3. [Create an Adapter in MobileFirst Server to fetch data from Cloudant database](#step-3-create-an-adapter-in-mobilefirst-server-to-fetch-data-from-cloudant-database)
   - 3.1 [Create Cloudant database and populate with people data](#31-create-cloudant-database-and-populate-with-people-data)
   - 3.2 [Create Bluemix Mobile Foundation service and configure MFP CLI](#32-create-bluemix-mobile-foundation-service-and-configure-mfp-cli)
@@ -60,15 +61,9 @@ $ java -version
 java version "1.8.0_101"
 ```
 
-* Install Android Studio
-https://developer.android.com/studio/index.html
-  - Once Android Studio is opened, click on "Configure" -> "SDK Manager" -> Select Android 6.0 (Marshmallow) API Level 3 -> OK
-  - Connect Android phone to computer by USB cable.
-  - On the mobile go to Settings -> About Phone -> On Build number, click 7 times to enable Developer mode.
-  - On the mobile go to Settings -> Developer Options and select Enable USB Debugging.
-
 * Install Atom (IDE for JavaScript)
-Install TypeScript plugin for Atom
+
+  Install TypeScript plugin for Atom
 ```
 apm install atom-typescript
 ```
@@ -303,6 +298,58 @@ Once you save all the above changes, back in console where `ionic serve` is runn
 The app being previewed in browser is reloaded as shown below:
 
 <img src="doc/source/images/PreviewAppInBrowser.png" alt="Preview app in browser using cordova serve" width="300" border="10" />
+
+### 2.4 Run application on Android phone
+
+#### 2.4.1 Install Android Studio and Android SDK platform
+* Download and install Android Studio from https://developer.android.com/studio/index.html
+* Install Android SDK Platform 23 (or higher)
+  - Launch Android Studio.
+  - Click on *Configure* -> *SDK Manager*
+  - Under *SDK Platforms*, select *Android 6.0 (Marshmallow) API Level 23*. Click *Apply* and then click *OK*. This will install Android SDK Platform on your machine.
+ 
+#### 2.4.2 Enable developer options and USB debugging on your Android phone
+* Enable USB debugging on your Android phone as per the steps in https://developer.android.com/studio/debug/dev-options.html
+  - Launch the Settings app on your phone. Select *About Device* -> *Software Info* . Tap *Build number* 7 times to enable developer options.
+  - Return to Settings list. Select *Developer options* and enable *USB debugging*.
+* If you are developing on Windows, then you need to install the appropriate USB driver as per instructions in https://developer.android.com/studio/run/oem-usb.html.
+* Connect the Android phone to your development machine by USB cable, and accept *allow* access on your phone.
+
+#### 2.4.3 Enable Android platform for Ionic application
+
+* Add Cordova platform for Android
+```
+$ ionic cordova platform add android@6
+> cordova platform add android@6 --save
+✔ Running command - done!
+```
+
+  Note: Make sure the Cordova platform version being added is supported by the MobileFirst plug-ins. Site https://mobilefirstplatform.ibmcloud.com/tutorials/en/foundation/8.0/application-development/sdk/cordova/ lists the supported levels.
+```
+$ cordova platform version
+Installed platforms:
+  android 6.3.0
+Available platforms: 
+  blackberry10 ~3.8.0 (deprecated)
+  browser ~4.1.0
+  ios ~4.4.0
+  osx ~4.0.1
+  webos ~3.7.0
+```
+
+#### 2.4.4 Build/Run the Ionic application on Android phone
+
+* Build Android application
+```
+$ ionic cordova build android
+```
+
+* Run application on Android device
+```
+$ ionic cordova run android
+```
+
+<img src="doc/source/images/SampleIonicAppRunningOnAndroid.png" alt="Snapshot of app running on Android device" width="240" border="10" />
 
 ## Step 3. Create an Adapter in MobileFirst Server to fetch data from Cloudant database
 
