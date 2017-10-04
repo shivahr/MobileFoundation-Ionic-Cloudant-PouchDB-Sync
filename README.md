@@ -317,7 +317,7 @@ The app being previewed in browser is reloaded as shown below:
 
 #### 2.4.3 Enable Android platform for Ionic application
 
-* Add Cordova platform for Android
+* Add [Cordova platform for Android](https://cordova.apache.org/docs/en/latest/guide/platforms/android/)
 ```
 $ ionic cordova platform add android@6
 > cordova platform add android@6 --save
