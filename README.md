@@ -479,4 +479,6 @@ Successfully deployed adapter
   - Show/Hide -> /getPeople -> Click on OFF to enable authentication -> Select Default Scope -> Click Authorize
   - Click *try it out*
 
+  <img src="doc/source/images/SwaggerToolsForTestingMobileFirstAdapter.png" alt="Swagger UI for testing MobileFirst Adapters" width="800" border="10" />
+
 ## Step 4. Update Ionic app to fetch data from MobileFirst Adapter
