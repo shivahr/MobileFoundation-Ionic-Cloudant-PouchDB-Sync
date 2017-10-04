@@ -12,6 +12,10 @@
   - 3.2 [Create Bluemix Mobile Foundation service and configure MFP CLI](#32-create-bluemix-mobile-foundation-service-and-configure-mfp-cli)
   - 3.3 [Create an MFP adapter to query people data](#33-create-an-mfp-adapter-to-query-people-data)
 4. [Update Ionic app to fetch data from MobileFirst Adapter](#step-4-update-ionic-app-to-fetch-data-from-mobilefirst-adapter)
+  - 4.1 [Add Cordova plugin for MFP](#41-add-cordova-plugin-for-mfp)
+  - 4.2 [Register the app to MobileFirst Server](#42-register-the-app-to-mobilefirst-server)
+  - 4.3 [Wait for MFP init to complete before loading UI](#43-wait-for-mfp-init-to-complete-before-loading-ui)
+  - 4.4 [Call MobileFirst Adapter to load people data from Cloudant](#44-call-mobilefirst-adapter-to-load-people-data-from-cloudant)
 
 [Troubleshooting](#troubleshooting)
 
@@ -69,8 +73,6 @@ java version "1.8.0_101"
 ```
 apm install atom-typescript
 ```
-
-* Install Google Chrome
 
 Note: If you are on Windows, instead of using sudo, run the above commands in a command prompt opened in administrative mode.
 
@@ -549,7 +551,7 @@ Installing "cordova-plugin-device" for android
 ...
 ```
 
-### 4.2 Register the mobile app on MobileFirst Server
+### 4.2 Register the app to MobileFirst Server
 ```
 $ mfpdev app register
 Verifying server configuration...
@@ -644,6 +646,23 @@ export class PeopleServiceProvider {
 
 Build and Run the app
 ```
-$ ionic build android
-$ ionic run android
+$ ionic cordova build android
+$ ionic cordova run android
 ```
+
+# Troubleshooting
+
+### Debugging Android hybrid app using Chrome Developer Tools
+
+* Install Google Chrome
+* Open Google Chrome. Open URL chrome://inspect/#devices
+* On devices page, click on *inspect* below your connected device.
+
+  <img src="doc/source/images/DebugAndroidAppWithChromeDeveloperTools.png" alt="Debugging of Android app using Chrome Developer Tools" width="800" border="10" />
+
+
+# References
+* 
+
+# License
+[Apache 2.0](LICENSE)
