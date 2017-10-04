@@ -13,6 +13,8 @@
   - 3.3 [Create an MFP adapter to query people data](#33-create-an-mfp-adapter-to-query-people-data)
 4. [Update Ionic app to fetch data from MobileFirst Adapter](#step-4-update-ionic-app-to-fetch-data-from-mobilefirst-adapter)
 
+[Troubleshooting](#troubleshooting)
+
 ## Step 1. Setup Ionic and MFP CLI
 * Install Node.js by downloading the setup from https://nodejs.org/en/ (Node.js 6.x or above)
 ```
@@ -469,7 +471,7 @@ Update `src/main/adapter-resources/adapter.xml` as below. Change domain, usernam
       <maxConcurrentConnectionsPerNode>50</maxConcurrentConnectionsPerNode>
     </connectionPolicy>
   </connectivity>
-  <procedure name="getPeople" scope = "restrictedData"/>
+  <procedure name="getPeople"/>
 </mfp:adapter>
 ```
 
@@ -534,4 +536,114 @@ Successfully deployed adapter
 
   <img src="doc/source/images/SwaggerToolsForTestingMobileFirstAdapter.png" alt="Swagger UI for testing MobileFirst Adapters" width="800" border="10" />
 
+
 ## Step 4. Update Ionic app to fetch data from MobileFirst Adapter
+
+### 4.1 Add Cordova plugin for MFP
+
+```
+$ cd ../MobileFirst-Ionic-GettingStarted/
+$ cordova plugin add cordova-plugin-mfp
+Installing "cordova-plugin-mfp" for android
+Installing "cordova-plugin-device" for android
+...
+```
+
+### 4.2 Register the mobile app on MobileFirst Server
+```
+$ mfpdev app register
+Verifying server configuration...
+Registering to server:'https://mobilefoundation-71-hb-server.mybluemix.net:443' runtime:'mfp'
+Updated config.xml file located at: /Users/shivahr/git/MobileFirst-Ionic-GettingStarted/config.xml
+Run 'cordova prepare' to propagate changes.
+Registered app for platform: android
+```
+
+  Propogate changes by running `cordova prepare`
+```
+$ cordova prepare
+```
+
+### 4.3 Wait for MFP init to complete before loading UI
+
+Update `src/app/app.component.ts` as below:
+
+<pre><code>
+import { Component<b>, Renderer</b> } from '@angular/core';
+import { Platform } from 'ionic-angular';
+import { StatusBar } from '@ionic-native/status-bar';
+import { SplashScreen } from '@ionic-native/splash-screen';
+
+import { HomePage } from '../pages/home/home';
+@Component({
+  templateUrl: 'app.html'
+})
+export class MyApp {
+  <b>rootPage:any;</b>
+
+  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen<b>, renderer: Renderer</b>) {
+    <b>renderer.listenGlobal('document', 'mfpjsloaded', () => {
+      console.log('--> MFP API init complete');
+      this.MFPInitComplete();
+    })</b>
+
+    platform.ready().then(() => {
+      // Okay, so the platform is ready and our plugins are available.
+      // Here you can do any higher level native things you might need.
+      statusBar.styleDefault();
+      splashScreen.hide();
+    });
+  }
+
+  <b>MFPInitComplete() {
+    console.log('--> MFPInitComplete() function called');
+    this.rootPage = HomePage;
+  }</b>
+
+}
+</code></pre>
+
+### 4.4 Call MobileFirst Adapter to load people data from Cloudant
+
+Update `src/providers/people-service/people-service.ts` as below:
+
+<pre><code>
+<b>/// &lt;reference path="../../../plugins/cordova-plugin-mfp/typings/worklight.d.ts" /&gt; </b>
+import { Injectable } from '@angular/core';
+
+@Injectable()
+export class PeopleServiceProvider {
+  data: any = null;
+
+  <b>constructor() {
+  }</b>
+
+  load() {
+    if (this.data) {
+      // already loaded data
+      return Promise.resolve(this.data);
+    }
+
+    // don't have the data yet
+    return new Promise(resolve => {
+      <b>let dataRequest = new WLResourceRequest("/adapters/peopleAdapter/getPeople", WLResourceRequest.GET);
+      dataRequest.send().then(
+        (response) => {
+          console.log('--> data loaded from adapter', response);
+          this.data = response.responseJSON.rows;
+          resolve(this.data)
+        }, (failure) => {
+          console.log('--> failed to load data', failure);
+          resolve('error')
+        })</b>
+    });
+  }
+
+}
+</code></pre>
+
+Build and Run the app
+```
+$ ionic build android
+$ ionic run android
+```
