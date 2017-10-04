@@ -444,7 +444,6 @@ Change directory to the newly created adapter source.
 
 #### 3.3.2 Point the created adapter to your Cloudant service instance
 
-
 Update `src/main/adapter-resources/adapter.xml` as below. Change domain, username and password to point to your Cloudant service:
 
 ```
@@ -542,6 +541,8 @@ Successfully deployed adapter
 ## Step 4. Update Ionic app to fetch data from MobileFirst Adapter
 
 ### 4.1 Add Cordova plugin for MFP
+
+Make sure you have enabled Android/iOS platform for the Ionic application as mentioned in [Step 2.4.3](#243-enable-android-platform-for-ionic-application) before continuing with the below steps.
 
 ```
 $ cd ../MobileFirst-Ionic-GettingStarted/
