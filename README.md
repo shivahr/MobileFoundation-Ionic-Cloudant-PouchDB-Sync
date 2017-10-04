@@ -337,6 +337,12 @@ Available platforms:
   webos ~3.7.0
 ```
 
+[Cordova Android 6.3.0](https://cordova.apache.org/announcements/2017/09/27/android-release.html) targets the latest Android API level of API 26. If you want to [target API 23 instead](https://stackoverflow.com/questions/35573485/ionic-add-platform-android-with-custom-android-target), then edit `config.xml` file (at the root of the project) and add preference for `android-targetSdkVersion` as shown below.
+```
+  <preference name="android-minSdkVersion" value="16" />
+  <preference name="android-targetSdkVersion" value="23" />
+```
+
 #### 2.4.4 Build/Run the Ionic application on Android phone
 
 * Build Android application
