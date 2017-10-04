@@ -650,6 +650,8 @@ $ ionic cordova build android
 $ ionic cordova run android
 ```
 
+  <img src="doc/source/images/MobileFirstIonicAppRunningOnAndroid.png" alt="MobileFirst Ionic app running on Android phone" width="240" border="10" />
+
 # Troubleshooting
 
 ### Debugging Android hybrid app using Chrome Developer Tools
@@ -665,12 +667,13 @@ $ ionic cordova run android
 * MobileFirst Lab Videos:
   - [MobileFirst Lab 2.62. Advanced Messenger. Adding MFP SDK and registering app on server](https://www.youtube.com/watch?v=I_dQxp-9WfY)
   - [MobileFirst Lab 2.63. Advanced Messenger. Using Java and JavaScript adapters to perform backend calls](https://www.youtube.com/watch?v=5YfqKFETZfU)
-* Ionic-2 quick tutorials:
+* Ionic 2 quick tutorials:
   - [10 Minutes with Ionic 2: Hello World](http://blog.ionic.io/10-minutes-with-ionic-2-hello-world/)
   - [10 Minutes with Ionic 2: Adding Pages and Navigation](http://blog.ionic.io/10-minutes-with-ionic-2-adding-pages-and-navigation/)
   - [10 Minutes with Ionic 2: Calling an API](http://blog.ionic.io/10-minutes-with-ionic-2-calling-an-api/)
   - [10 Minutes with Ionic 2: Using the Camera with Ionic Native](http://blog.ionic.io/10-minutes-with-ionic-2-using-the-camera-with-ionic-native/)
 * [What Does Ionic 3 Mean for Ionic 2?](https://www.joshmorony.com/what-does-ionic-3-mean-for-ionic-2/)
+* [Dealing with Asynchronous Code in Ionic](https://www.joshmorony.com/dealing-with-asynchronous-code-in-ionic/)
 
 # License
 [Apache 2.0](LICENSE)
