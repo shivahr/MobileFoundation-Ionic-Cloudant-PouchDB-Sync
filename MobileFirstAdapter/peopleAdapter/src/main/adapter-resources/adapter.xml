@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Licensed Materials - Property of IBM
+	5725-I43 (C) Copyright IBM Corp. 2011, 2016. All Rights Reserved.
+	US Government Users Restricted Rights - Use, duplication or
+	disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+-->
+<mfp:adapter name="peopleAdapter"
+			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xmlns:mfp="http://www.ibm.com/mfp/integration"
+			 xmlns:http="http://www.ibm.com/mfp/integration/http">
+
+	<displayName>peopleAdapter</displayName>
+	<description>peopleAdapter</description>
+	<connectivity>
+    <connectionPolicy xsi:type="http:HTTPConnectionPolicyType">
+      <protocol>https</protocol>
+      <domain>YourCloudantDomain-bluemix.cloudant.com</domain>
+      <port>443</port>
+      <connectionTimeoutInMilliseconds>30000</connectionTimeoutInMilliseconds>
+      <socketTimeoutInMilliseconds>30000</socketTimeoutInMilliseconds>
+      <authentication>
+        <basic/>
+          <serverIdentity>
+            <username>YourCloudantUsername</username>
+            <password>YourCloudantPassword</password>
+          </serverIdentity>
+      </authentication>
+      <maxConcurrentConnectionsPerNode>50</maxConcurrentConnectionsPerNode>
+    </connectionPolicy>
+  </connectivity>
+  <procedure name="getPeople" />
+
+</mfp:adapter>
