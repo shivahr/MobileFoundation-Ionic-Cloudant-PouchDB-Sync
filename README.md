@@ -2,6 +2,12 @@
 
 <img src="doc/source/images/Architecture.png" alt="Architecture diagram" width="640" border="10" />
 
+1. User launches the mobile app. A call is made to MobileFirst adapter to fetch content.
+2. MobileFirst adapter fetches the content from Cloudant NoSQL DB and returns it to the mobile app for displaying to user.
+3. Mobile app sets up automatic sync between local PouchDB and Cloudant NoSQL DB. The next time user launches the app and the device is offline, the content is fetched from local PouchDB instead of Cloudant.
+4. An external user or application updates the content in Cloudant NoSQL DB.
+5. When the device gets network connectivity, PouchDB automatically syncs up the data with Cloudant NoSQL DB. The data displayed on app is udpated accordingly.
+
 ## Steps
 1. [Setup Ionic and MFP CLI](#step-1-setup-ionic-and-mfp-cli)
 2. [Create Ionic Sample Application](#step-2-create-ionic-sample-application)
