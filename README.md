@@ -1,5 +1,7 @@
 # MobileFirst-Ionic-GettingStarted
 
+<img src="doc/source/images/Architecture.png" alt="Architecture diagram" width="640" border="10" />
+
 ## Steps
 1. [Setup Ionic and MFP CLI](#step-1-setup-ionic-and-mfp-cli)
 2. [Create Ionic Sample Application](#step-2-create-ionic-sample-application)
