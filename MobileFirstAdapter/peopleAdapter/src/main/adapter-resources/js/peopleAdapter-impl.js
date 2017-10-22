@@ -17,3 +17,11 @@ function getPeople() {
         return {'rows': results};
     }
 }
+
+function getCloudantCredentials() {
+  return {
+    'url': MFP.Server.getPropertyValue("DB_url"),
+    'username': MFP.Server.getPropertyValue("DB_username"),
+    'password': MFP.Server.getPropertyValue("DB_password"),
+  };
+}
