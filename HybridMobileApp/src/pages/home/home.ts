@@ -11,7 +11,7 @@ export class HomePage {
     people: any;
 
   constructor(public navCtrl: NavController, public peopleService: PeopleServiceProvider) {
-    this.peopleService.load().then(data => {
+    this.peopleService.getData().then(data => {
       this.people = data;
     });
   }
