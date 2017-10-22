@@ -24,6 +24,9 @@
   - 4.2 [Register the app to MobileFirst Server](#42-register-the-app-to-mobilefirst-server)
   - 4.3 [Wait for MFP init to complete before loading UI](#43-wait-for-mfp-init-to-complete-before-loading-ui)
   - 4.4 [Call MobileFirst Adapter to load people data from Cloudant](#44-call-mobilefirst-adapter-to-load-people-data-from-cloudant)
+5. [PouchDB Cloudant Offline Sync](#step-5-pouchdb-cloudant-offline-sync)
+  - 5.1 [Add adapter function to return Cloudant credentials](#51-add-adapter-function-to-return-cloudant-credentials)
+  - 5.2 [Add code to setup sync between PouchDB and Cloudant](#52-add-code-to-setup-sync-between-pouchdb-and-cloudant)
 
 [Troubleshooting](#troubleshooting)
 
@@ -661,6 +664,157 @@ $ ionic cordova run android
 
   <img src="doc/source/images/MobileFirstIonicAppRunningOnAndroid.png" alt="MobileFirst Ionic app running on Android phone" width="240" border="10" />
 
+## Step 5. PouchDB Cloudant Offline Sync
+
+### 5.1 Add adapter function to return Cloudant credentials
+
+* Update `MobileFirstAdapter/peopleAdapter/src/main/adapter-resources/adapter.xml` as below:
+
+<pre><code>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mfp:adapter name="peopleAdapter"
+...
+  &lt;procedure name="getPeople" /&gt;
+  <b>&lt;procedure name="getCloudantCredentials" /&gt;
+  &lt;property name="DB_username" displayName="Database username" defaultValue="bfe1454d-10c7-493d-9d2a-db6459b01b68-bluemix"  /&gt;
+  &lt;property name="DB_password" displayName="Database password" defaultValue="2f146cb584b69ff6f25115fa20237f0e17f247d893cbc239d6e601474c4e4756"  /&gt;
+  &lt;property name="DB_url" displayName="Database URL" defaultValue="https://bfe1454d-10c7-493d-9d2a-db6459b01b68-bluemix.cloudant.com/employees"  /&gt;
+&lt;/mfp:adapter&gt;</b>
+</code></pre>
+
+* Update `MobileFirstAdapter/peopleAdapter/src/main/adapter-resources/js/peopleAdapter-impl.js` as below:
+
+<pre><code>
+function getPeople() {
+...
+}
+
+<b>function getCloudantCredentials() {
+  return {
+    'url': MFP.Server.getPropertyValue("DB_url"),
+    'username': MFP.Server.getPropertyValue("DB_username"),
+    'password': MFP.Server.getPropertyValue("DB_password"),
+  };
+}</b>
+</code></pre>
+
+### 5.2 Add code to setup sync between PouchDB and Cloudant
+
+* Install PouchDB with the following command: 
+
+```
+$ npm install pouchdb --save
+```
+
+* Run the following command to install the types for PouchDB: 
+
+```
+$ npm install @types/pouchdb --save --save-exact
+```
+
+* Update `HybridMobileApp/src/providers/people-service/people-service.ts` as below:
+
+<pre><code>
+/// &lt;reference path="../../../plugins/cordova-plugin-mfp/typings/worklight.d.ts" /&gt;
+import { Injectable<b>, NgZone</b> } from '@angular/core';
+<b>import PouchDB from 'pouchdb';</b>
+
+@Injectable()
+export class PeopleServiceProvider {
+  data: any = null;
+  <b>db: any;
+  zone: any;</b>
+
+  constructor() {
+    <b>this.db = new PouchDB('mytestdb');
+    this.zone = new NgZone({ enableLongStackTrace: false });
+    this.setupDBSync();</b>
+  }
+
+  <b>setupDBSync() {
+    let dataRequest = new WLResourceRequest("/adapters/peopleAdapter/getCloudantCredentials", WLResourceRequest.GET);
+    dataRequest.send().then(
+      (response) => {
+        let options = {
+          live: true,
+          retry: true,
+          continuous: true,
+          auth: {
+            username: response.responseJSON.username,
+            password: response.responseJSON.password
+          }
+        };
+        this.db.sync(response.responseJSON.url, options);
+      }, (failure) => {
+        console.log('--> failed to fetch DB credentials', failure);
+      }
+    )
+  }
+
+  getData() {
+    if (this.data) {
+      return Promise.resolve(this.data);
+    }
+    return new Promise(resolve => {
+      this.db.allDocs({
+        include_docs: true
+      }).then((result) => {
+        this.data = [];
+        let docs = result.rows.map((row) => {
+          this.data.push(row.doc);
+        });
+        resolve(this.data);
+        this.db.changes({live: true, since: 'now', include_docs: true}).on('change', (change) => {
+          this.handleChange(change);
+        });
+      }).catch((error) => {
+        console.log(error);
+      });
+    });
+  }
+
+  handleChange(change) {
+    let changedDoc = null;
+    let changedIndex = null;
+    this.data.forEach((doc, index) => {
+      if (doc._id === change.id) {
+        changedDoc = doc;
+        changedIndex = index;
+      }
+    });
+
+    this.zone.run(() => {
+      if (change.deleted) {
+        // A document was deleted
+        this.data.splice(changedIndex, 1);
+      } else {
+        if (changedDoc) {
+          // A document was updated
+          this.data[changedIndex] = change.doc;
+        } else {
+          // A document was added
+          this.data.push(change.doc);
+        }
+      }
+    });
+  }</b>
+}
+</code></pre>
+
+* Update `HybridMobileApp/src/pages/home/home.ts` as below:
+
+<pre><code>
+...
+export class HomePage {
+  ...
+  constructor(public navCtrl: NavController, public peopleService: PeopleServiceProvider) {
+    this.peopleService.<b>getData()</b>.then(data => {
+      this.people = data;
+    });
+  }
+}
+</code></pre>
+
 # Troubleshooting
 
 ### Debugging Android hybrid app using Chrome Developer Tools
@@ -683,6 +837,10 @@ $ ionic cordova run android
   - [10 Minutes with Ionic 2: Using the Camera with Ionic Native](http://blog.ionic.io/10-minutes-with-ionic-2-using-the-camera-with-ionic-native/)
 * [What Does Ionic 3 Mean for Ionic 2?](https://www.joshmorony.com/what-does-ionic-3-mean-for-ionic-2/)
 * [Dealing with Asynchronous Code in Ionic](https://www.joshmorony.com/dealing-with-asynchronous-code-in-ionic/)
+* [Offline Syncing in Ionic 2 with PouchDB & CouchDB](https://www.joshmorony.com/offline-syncing-in-ionic-2-with-pouchdb-couchdb/)
+* [Understanding Zones and Change Detection in Ionic 2 & Angular 2](https://www.joshmorony.com/understanding-zones-and-change-detection-in-ionic-2-angular-2/)
+  - [Ionic UI not updating after change to model](https://ionicallyspeaking.com/2017/01/17/ionic-2-ui-not-updating-after-change-to-model/)
+* [Basic Security for Ionic & Cordova Applications](https://www.joshmorony.com/basic-security-for-ionic-cordova-applications/)
 
 # License
 [Apache 2.0](LICENSE)
