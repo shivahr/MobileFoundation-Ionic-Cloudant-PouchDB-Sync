@@ -2,6 +2,17 @@
 
 # MobileFoundation-Ionic-Cloudant-PouchDB-Sync
 
+The increasing focus on [Digital Transformation](http://sloanreview.mit.edu/article/the-nine-elements-of-digital-transformation/) has lead to more and more usecases where organizations want their enterprise apps to be usable even when the device is offline, and later sync the data with the enterprise when the device comes online again. In addition, organizations want to leverage the benefits of:
+  * hybrid mobile apps where a single code base, developed using standard web technologies, works across platforms - Android, iOS and Windows phones, thereby enabling organizations to more easily embrace the policy of [bring your own device (BYOD)](https://en.wikipedia.org/wiki/Bring_your_own_device).
+  * cloud hosted mobile backend servers for robust handling of security challenges posed by above scenarios, backend integration, app life cycle management and app analytics.
+
+In this developer journey, we will show you how to combine the following technologies to **securely** implement the mobile offline synchronization usecase.
+  * [IBM Mobile Foundation](https://www.ibm.com/us-en/marketplace/mobile-cloud-applications) - the enterprise grade mobile backend server available as a service on IBM Cloud,
+  * [Ionic framework](https://ionicframework.com/) - an open-source SDK for hybrid mobile app development built on top of [Apache Cordova](https://en.wikipedia.org/wiki/Apache_Cordova) and [Angular](https://en.wikipedia.org/wiki/Angular_(application_platform)),
+  * [PouchDB](https://pouchdb.com/) - an open source JavaScript database that is designed to run well within the browser, and
+  * [IBM Cloudant](https://www.ibm.com/analytics/us/en/technology/cloud-data-services/cloudant/) - a managed NoSQL JSON database service available on IBM Cloud.
+
+# Flow
 <img src="doc/source/images/Architecture.png" alt="Architecture diagram" width="640" border="10" />
 
 1. User launches the mobile app. A call is made to MobileFirst adapter to fetch content.
