@@ -15,11 +15,15 @@ In this developer journey, we will show you how to combine the following technol
 # Flow
 <img src="doc/source/images/Architecture.png" alt="Architecture diagram" width="640" border="10" />
 
-1. User launches the mobile app. A call is made to MobileFirst adapter to fetch content.
-2. MobileFirst adapter fetches the content from Cloudant NoSQL DB and returns it to the mobile app for displaying to user.
-3. Mobile app sets up automatic sync between local PouchDB and Cloudant NoSQL DB. The next time user launches the app and the device is offline, the content is fetched from local PouchDB instead of Cloudant.
-4. An external user or application updates the content in Cloudant NoSQL DB.
-5. When the device gets network connectivity, PouchDB automatically syncs up the data with Cloudant NoSQL DB. The data displayed on app is udpated accordingly.
+1. User launches the mobile app. A call is made to MobileFirst adapter to fetch the Cloudant service credentials stored in the adapter configuration.
+2. MobileFirst server sees that the user/device is not yet authenticated, and hence throws a user authentication security challenge back to the mobile app.
+3. Mobile app displays the login screen asking the user to specify his/her credentials.
+4. User enters his/her login credentials and clicks *Login*.
+5. The user entered credentials are sent to the MobileFirst server as a response to the security challenge.
+6. MobileFirst server invokes security adapter logic to validate the user credentials.
+7. If user authentication succeeds, MobileFirst server responds to the initial app request with the Cloudant service credentials.
+8. Mobile app now sets up automatic sync between local PouchDB and Cloudant NoSQL DB with the server fetched Cloudant service credentials.
+9. Every time the local PouchDB syncs its contents with Cloudant, the handleChange method is called which, having being enclosed in Angular NgZone, automatically updates the mobile app UI with the latest content.
 
 ## Steps
 1. [Setup Ionic and MFP CLI](#step-1-setup-ionic-and-mfp-cli)
