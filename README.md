@@ -1,6 +1,6 @@
 **Note**: This is a work in progress.
 
-# MobileFoundation-Ionic-Cloudant-PouchDB-Sync
+# Secure Offline Synchronization through IBM Mobile Foundation
 
 The increasing focus on [Digital Transformation](http://sloanreview.mit.edu/article/the-nine-elements-of-digital-transformation/) has lead to more and more usecases where organizations want their enterprise apps to be usable even when the device is offline, and later sync the data with the enterprise when the device comes online again. In addition, organizations want to leverage the benefits of:
   * hybrid mobile apps where a single code base, developed using standard web technologies, works across platforms - Android, iOS and Windows phones, thereby enabling organizations to more easily embrace the policy of [bring your own device (BYOD)](https://en.wikipedia.org/wiki/Bring_your_own_device).
