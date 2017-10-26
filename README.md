@@ -19,11 +19,11 @@ In this developer journey, we will show you how to combine the following technol
 2. MobileFirst server sees that the user/device is not yet authenticated, and hence throws a user authentication security challenge back to the mobile app.
 3. Mobile app displays the login screen asking the user to specify his/her credentials.
 4. User enters his/her login credentials and clicks *Login*.
-5. The user entered credentials are sent to the MobileFirst server as a response to the security challenge.
+5. Mobile app sends the user entered credentials to the MobileFirst server as a response to the security challenge.
 6. MobileFirst server invokes security adapter logic to validate the user credentials.
 7. If user authentication succeeds, MobileFirst server responds to the initial app request with the Cloudant service credentials.
 8. Mobile app now sets up automatic sync between local PouchDB and Cloudant NoSQL DB with the server fetched Cloudant service credentials.
-9. Every time the local PouchDB syncs its contents with Cloudant, the handleChange method is called which, having being enclosed in Angular NgZone, automatically updates the mobile app UI with the latest content.
+9. Every time the local PouchDB syncs its contents with Cloudant, the handleChange method is called which, being enclosed in Angular NgZone, automatically updates the mobile app UI with the latest data.
 
 ## Steps
 1. [Setup Ionic and MFP CLI](#step-1-setup-ionic-and-mfp-cli)
