@@ -39,7 +39,7 @@ In this developer journey, we will show you how to combine the following technol
 4. [Update Ionic app to fetch data from MobileFirst Adapter](#step-4-update-ionic-app-to-fetch-data-from-mobilefirst-adapter)
   - 4.1 [Add Cordova plugin for MFP](#41-add-cordova-plugin-for-mfp)
   - 4.2 [Register the app to MobileFirst Server](#42-register-the-app-to-mobilefirst-server)
-  - 4.3 [Wait for MFP init to complete before loading UI](#43-wait-for-mfp-init-to-complete-before-loading-ui)
+  - 4.3 [Wait for MobileFirst SDK to load before showing UI](#43-wait-for-mobilefirst-sdk-to-load-before-showing-ui)
   - 4.4 [Call MobileFirst Adapter to load people data from Cloudant](#44-call-mobilefirst-adapter-to-load-people-data-from-cloudant)
 5. [PouchDB Cloudant Offline Sync](#step-5-pouchdb-cloudant-offline-sync)
   - 5.1 [Add adapter function to return Cloudant credentials](#51-add-adapter-function-to-return-cloudant-credentials)
@@ -237,25 +237,32 @@ export class PeopleServiceProvider {
 }
 </code></pre>
 
-#### 2.3.3 Add the HttpModule to your app.module.ts
+#### 2.3.3 Add the PeopleServiceProvider and HttpModule to your app.module.ts
 
-Add the HttpModule to your `src/app/app.module.ts` as shown below:
+Add the PeopleServiceProvider and HttpModule to your `src/app/app.module.ts` as shown below:
 
 <pre><code>
 import { BrowserModule } from '@angular/platform-browser';
 import { ErrorHandler, NgModule } from '@angular/core';
-<b>import { HttpModule } from '@angular/http';</b>
+<b>import { HttpModule } from '@angular/http';
+import { PeopleServiceProvider } from '../providers/people-service/people-service';</b>
 ...
 @NgModule({
   ...
   imports: [
     BrowserModule,
-<b>    HttpModule,</b>
+    <b>HttpModule,</b>
     IonicModule.forRoot(MyApp)
   ],
   ...
+  providers: [
+    StatusBar,
+    SplashScreen,
+    {provide: ErrorHandler, useClass: IonicErrorHandler}<b>,
+    PeopleServiceProvider</b>
+  ]
 })
-...
+export class AppModule {}
 </code></pre>
 
 #### 2.3.4 Modify home page to display the list of people
@@ -269,17 +276,21 @@ import { NavController } from 'ionic-angular';
 
 @Component({
   selector: 'page-home',
-  templateUrl: 'home.html'<b>,
-  providers: [PeopleServiceProvider]</b>
+  templateUrl: 'home.html'
 })
 export class HomePage {
   <b>people: any;</b>
 
-  constructor(public navCtrl: NavController, public peopleServiceProvider: PeopleServiceProvider) {
-    <b>this.peopleServiceProvider.load().then(data => {
+  constructor(public navCtrl: NavController<b>, public peopleServiceProvider: PeopleServiceProvider</b>) {
+    <b>console.log('--> HomePage constructor() called');
+    this.peopleServiceProvider.load().then(data => {
       this.people = data;
     });</b>
   }
+
+  <b>ionViewDidLoad() {
+    console.log('--> HomePage ionViewDidLoad() called');
+  }</b>
 
 }
 </code></pre>
@@ -572,6 +583,7 @@ Successfully deployed adapter
 
 Make sure you have enabled Android/iOS platform for the Ionic application as mentioned in [Step 2.4.3](#243-enable-android-platform-for-ionic-application) before continuing with the below steps.
 
+  Add Cordova plugin for MFP as shown below.
 ```
 $ cd ../MobileFirst-Ionic-GettingStarted/
 $ cordova plugin add cordova-plugin-mfp
@@ -595,7 +607,7 @@ Registered app for platform: android
 $ cordova prepare
 ```
 
-### 4.3 Wait for MFP init to complete before loading UI
+### 4.3 Wait for MobileFirst SDK to load before showing UI
 
 Update `src/app/app.component.ts` as below:
 
@@ -606,6 +618,7 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { HomePage } from '../pages/home/home';
+
 @Component({
   templateUrl: 'app.html'
 })
@@ -613,23 +626,20 @@ export class MyApp {
   <b>rootPage:any;</b>
 
   constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen<b>, renderer: Renderer</b>) {
-    <b>renderer.listenGlobal('document', 'mfpjsloaded', () => {
-      console.log('--> MFP API init complete');
-      this.MFPInitComplete();
+    <b>console.log('--> MyApp constructor() called');
+    renderer.listenGlobal('document', 'mfpjsloaded', () => {
+      console.log('--> MyApp mfpjsloaded');
+      this.rootPage = HomePage;
     })</b>
 
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
+      <b>console.log('--> MyApp platform.ready() called');</b>
       statusBar.styleDefault();
       splashScreen.hide();
     });
   }
-
-  <b>MFPInitComplete() {
-    console.log('--> MFPInitComplete() function called');
-    this.rootPage = HomePage;
-  }</b>
 
 }
 </code></pre>
@@ -647,6 +657,7 @@ export class PeopleServiceProvider {
   data: any = null;
 
   <b>constructor() {
+    console.log('--> PeopleServiceProvider constructor() called');
   }</b>
 
   load() {
@@ -740,15 +751,24 @@ import { Injectable<b>, NgZone</b> } from '@angular/core';
 export class PeopleServiceProvider {
   data: any = null;
   <b>db: any;
-  zone: any;</b>
+  zone: any;
+  syncCalled = false;</b>
 
   constructor() {
     <b>this.db = new PouchDB('mytestdb');
+    this.db.changes({live: true, since: 'now', include_docs: true}).on('change', (change) => {
+      this.handleChange(change);
+    });
     this.zone = new NgZone({ enableLongStackTrace: false });
     this.setupDBSync();</b>
   }
 
   <b>setupDBSync() {
+    if (this.syncCalled) {
+      return;
+    }
+    this.syncCalled = true;
+    console.log('--> PeopleServiceProvider setupDBSync() called');
     let dataRequest = new WLResourceRequest("/adapters/peopleAdapter/getCloudantCredentials", WLResourceRequest.GET);
     dataRequest.send().then(
       (response) => {
@@ -762,6 +782,7 @@ export class PeopleServiceProvider {
           }
         };
         this.db.sync(response.responseJSON.url, options);
+        console.log('--> sync between PouchDB and Cloudant has been setup');
       }, (failure) => {
         console.log('--> failed to fetch DB credentials', failure);
       }
@@ -769,6 +790,7 @@ export class PeopleServiceProvider {
   }
 
   getData() {
+    console.log('--> PeopleServiceProvider getData() called');
     if (this.data) {
       return Promise.resolve(this.data);
     }
@@ -781,9 +803,6 @@ export class PeopleServiceProvider {
           this.data.push(row.doc);
         });
         resolve(this.data);
-        this.db.changes({live: true, since: 'now', include_docs: true}).on('change', (change) => {
-          this.handleChange(change);
-        });
       }).catch((error) => {
         console.log(error);
       });
@@ -791,6 +810,7 @@ export class PeopleServiceProvider {
   }
 
   handleChange(change) {
+    console.log('--> PeopleServiceProvider handleChange() called');
     let changedDoc = null;
     let changedIndex = null;
     this.data.forEach((doc, index) => {
