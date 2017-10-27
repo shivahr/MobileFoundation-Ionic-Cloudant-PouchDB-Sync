@@ -4,16 +4,20 @@ import { PeopleServiceProvider } from '../../providers/people-service/people-ser
 
 @Component({
   selector: 'page-home',
-  templateUrl: 'home.html',
-  providers: [PeopleServiceProvider]
+  templateUrl: 'home.html'
 })
 export class HomePage {
     people: any;
 
   constructor(public navCtrl: NavController, public peopleService: PeopleServiceProvider) {
+    console.log('--> HomePage constructor() called');
     this.peopleService.getData().then(data => {
       this.people = data;
     });
+  }
+
+  ionViewDidLoad() {
+    console.log('--> HomePage ionViewDidLoad() called');
   }
 
 }
