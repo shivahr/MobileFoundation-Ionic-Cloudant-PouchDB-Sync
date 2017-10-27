@@ -16,6 +16,7 @@ export class PeopleServiceProvider {
     this.db.changes({live: true, since: 'now', include_docs: true}).on('change', (change) => {
       this.handleChange(change);
     });
+    this.setupDBSync();
   }
 
   setupDBSync() {
