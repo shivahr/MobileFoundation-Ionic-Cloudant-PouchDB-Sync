@@ -7,14 +7,23 @@ export class PeopleServiceProvider {
   data: any = null;
   db: any;
   zone: any;
+  syncCalled = false;
 
   constructor() {
+    console.log('--> PeopleServiceProvider constructor() called');
     this.db = new PouchDB('mytestdb');
     this.zone = new NgZone({ enableLongStackTrace: false });
-    this.setupDBSync();
+    this.db.changes({live: true, since: 'now', include_docs: true}).on('change', (change) => {
+      this.handleChange(change);
+    });
   }
 
   setupDBSync() {
+    if (this.syncCalled) {
+      return;
+    }
+    this.syncCalled = true;
+    console.log('--> PeopleServiceProvider setupDBSync() called');
     let dataRequest = new WLResourceRequest("/adapters/peopleAdapter/getCloudantCredentials", WLResourceRequest.GET);
     dataRequest.send().then(
       (response) => {
@@ -28,6 +37,7 @@ export class PeopleServiceProvider {
           }
         };
         this.db.sync(response.responseJSON.url, options);
+        console.log('--> sync between PouchDB and Cloudant has been setup');
       }, (failure) => {
         console.log('--> failed to fetch DB credentials', failure);
       }
@@ -35,6 +45,7 @@ export class PeopleServiceProvider {
   }
 
   getData() {
+    console.log('--> PeopleServiceProvider getData() called');
     if (this.data) {
       return Promise.resolve(this.data);
     }
@@ -47,9 +58,6 @@ export class PeopleServiceProvider {
           this.data.push(row.doc);
         });
         resolve(this.data);
-        this.db.changes({live: true, since: 'now', include_docs: true}).on('change', (change) => {
-          this.handleChange(change);
-        });
       }).catch((error) => {
         console.log(error);
       });
@@ -57,6 +65,7 @@ export class PeopleServiceProvider {
   }
 
   handleChange(change) {
+    console.log('--> PeopleServiceProvider handleChange() called');
     let changedDoc = null;
     let changedIndex = null;
     this.data.forEach((doc, index) => {
