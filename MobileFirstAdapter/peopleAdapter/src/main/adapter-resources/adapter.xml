@@ -29,10 +29,10 @@
       <maxConcurrentConnectionsPerNode>50</maxConcurrentConnectionsPerNode>
     </connectionPolicy>
   </connectivity>
-  <procedure name="getPeople" />
-	<procedure name="getCloudantCredentials" />
-	<property name="DB_username" displayName="Database username" defaultValue="YourCloudantUsername"  />
-	<property name="DB_password" displayName="Database password" defaultValue="YourCloudantPassword"  />
-	<property name="DB_url" displayName="Database URL" defaultValue="https://YourCloudantDomain-bluemix.cloudant.com/employees"  />
+  <procedure name="getPeople" scope="restrictedData"/>
+  <procedure name="getCloudantCredentials" scope="restrictedData"/>
+  <property name="DB_username" displayName="Database username" defaultValue="YourCloudantUsername"  />
+  <property name="DB_password" displayName="Database password" defaultValue="YourCloudantPassword"  />
+  <property name="DB_url" displayName="Database URL" defaultValue="https://YourCloudantDomain-bluemix.cloudant.com/employees"  />
 
 </mfp:adapter>

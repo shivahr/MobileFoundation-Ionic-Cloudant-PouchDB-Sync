@@ -7,12 +7,15 @@ import { StatusBar } from '@ionic-native/status-bar';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
+import { LoginPage } from '../pages/login/login';
 import { PeopleServiceProvider } from '../providers/people-service/people-service';
+import { AuthHandlerProvider } from '../providers/auth-handler/auth-handler';
 
 @NgModule({
   declarations: [
     MyApp,
-    HomePage
+    HomePage,
+    LoginPage
   ],
   imports: [
     BrowserModule,
@@ -22,13 +25,15 @@ import { PeopleServiceProvider } from '../providers/people-service/people-servic
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
-    HomePage
+    HomePage,
+    LoginPage
   ],
   providers: [
     StatusBar,
     SplashScreen,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
-    PeopleServiceProvider
+    PeopleServiceProvider,
+    AuthHandlerProvider
   ]
 })
 export class AppModule {}

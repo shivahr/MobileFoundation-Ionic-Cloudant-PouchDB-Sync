@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Login</ion-title>
+  </ion-navbar>
+</ion-header>
+
+
+<ion-content padding>
+  <form (submit)="processForm()" [formGroup]="form">
+      <ion-list>
+
+      <ion-item>
+        <ion-label fixed>Username</ion-label>
+        <ion-input formControlName="username" type="text"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label fixed>Password</ion-label>
+        <ion-input formControlName="password" type="password"></ion-input>
+      </ion-item>
+
+    </ion-list>
+    <div padding>
+      <button ion-button block type="submit">Sign In</button>
+    </div>
+  </form>
+</ion-content>

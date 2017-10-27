@@ -3,7 +3,8 @@ import { Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
-import { HomePage } from '../pages/home/home';
+import { LoginPage } from '../pages/login/login';
+import { AuthHandlerProvider } from '../providers/auth-handler/auth-handler';
 
 @Component({
   templateUrl: 'app.html'
@@ -11,12 +12,14 @@ import { HomePage } from '../pages/home/home';
 export class MyApp {
   rootPage:any;
 
-  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, renderer: Renderer) {
+  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen,
+    renderer: Renderer, private authHandler: AuthHandlerProvider) {
     console.log('--> MyApp constructor() called');
 
     renderer.listenGlobal('document', 'mfpjsloaded', () => {
       console.log('--> MyApp mfpjsloaded');
-      this.rootPage = HomePage;
+      this.rootPage = LoginPage;
+      this.authHandler.init();
     })
 
     platform.ready().then(() => {
