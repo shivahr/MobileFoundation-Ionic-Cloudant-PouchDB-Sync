@@ -852,6 +852,390 @@ export class HomePage {
 }
 </code></pre>
 
+## Step 6. Add pre-emptive login
+
+### 6.1 Add Security Adapter
+
+https://mobilefirstplatform.ibmcloud.com/tutorials/en/foundation/8.0/authentication-and-security/user-authentication/security-check/
+
+Download UserLogin adapter from https://github.com/MobileFirst-Platform-Developer-Center/SecurityCheckAdapters/tree/release80/UserLogin - `MobileFirstAdapter/UserLogin` contains a copy of this.
+
+Build and deploy the UserLogin sample adapter
+```
+$ cd ../MobileFirstAdapter/UserLogin
+$ mfpdev adapter build
+$ mfpdev adapter deploy
+```
+
+### 6.2 Secure peopleAdapter using UserLogin security check
+
+Add scope element to peopleAdapter/getCloudantCredentials procedure
+
+Update `MobileFirstAdapter/peopleAdapter/src/main/adapter-resources/adapter.xml` as below:
+
+<pre><code>
+&lt;procedure name="getPeople" <b>scope="restrictedData"</b>/&gt;
+&lt;procedure name="getCloudantCredentials" <b>scope="restrictedData"</b>/&gt;
+</code></pre>
+
+Build and deploy the peopleAdapter
+```
+$ cd ../peopleAdapter
+$ mfpdev adapter build
+$ mfpdev adapter deploy
+```
+
+Verify:
+ - Go to MobileFirst Operations Console -> Adapters -> peopleAdapter -> Resources
+ - Make sure 'Security' for '/getCloudantCredentials' URL is mentioned as 'restrictedData'
+
+Map 'restrictedData' scope element to UserLogin security check
+ - Go to MobileFirst Operations Console -> Applications -> MyApp -> Android -> Security -> Scope-Elements Mapping -> New
+ - Scope element: restrictedData
+ - Select 'UserLogin' under 'Custom Security Checks'
+ - Click Add.
+Repeat above steps for Applications -> MyApp -> iOS.
+
+
+### 6.3 Create a new provider to assist in handling MFP security challenges
+
+Generate a new provider using Ionic CLI
+
+```
+$ cd ../IonicMobileApp
+$ ionic generate provider AuthHandler
+[OK] Generated a provider named AuthHandler!
+```
+
+Update `src/providers/auth-handler.ts` as below:
+
+<pre><code>
+import { Injectable } from '@angular/core';
+
+<b>var isChallenged = false;
+var handleChallengeCallback = null;
+var loginSuccessCallback = null;
+var loginFailureCallback = null;</b>
+
+@Injectable()
+export class AuthHandlerProvider {
+  <b>securityCheckName = 'UserLogin';
+  userLoginChallengeHandler;
+  initialized = false;
+
+  constructor() {
+  }
+
+  // Reference: https://mobilefirstplatform.ibmcloud.com/tutorials/en/foundation/8.0/authentication-and-security/credentials-validation/javascript/
+  init() {
+    if (this.initialized) {
+      return;
+    }
+    this.initialized = true;
+    console.log('--> AuthHandler init() called');
+
+    this.userLoginChallengeHandler = WL.Client.createSecurityCheckChallengeHandler(this.securityCheckName);
+
+    this.userLoginChallengeHandler.handleChallenge = function(challenge) {
+      console.log('--> AuthHandler handleChallenge called');
+      isChallenged = true;
+
+      console.log('--> remainingAttempts: ', challenge.remainingAttempts);
+      var statusMsg = 'Remaining attempts: ' + challenge.remainingAttempts;
+      if (challenge.errorMsg !== null) {
+        console.log('--> errorMsg: ', challenge.errorMsg);
+        statusMsg += '<br>' + challenge.errorMsg;
+        if (loginFailureCallback != null) {
+          loginFailureCallback({'failure': statusMsg});
+        }
+      }
+
+      if (handleChallengeCallback != null) {
+        handleChallengeCallback();
+      } else {
+        console.log('--> handleChallengeCallback not set!');
+      }
+    };
+
+    this.userLoginChallengeHandler.handleSuccess = function(data) {
+      console.log('--> AuthHandler handleSuccess called');
+      isChallenged = false;
+
+      if (loginSuccessCallback != null) {
+        loginSuccessCallback();
+      } else {
+        console.log('--> loginSuccessCallback not set!');
+      }
+    };
+
+    this.userLoginChallengeHandler.handleFailure = function(error) {
+      console.log('--> AuthHandler handleFailure called' + error.failure);
+      isChallenged = false;
+
+      if (loginFailureCallback != null) {
+        loginFailureCallback(error);
+      } else {
+        console.log('--> loginFailureCallback not set!');
+      }
+    };
+  }
+
+  setCallbacks(onSuccess, onFailure, onHandleChallenge) {
+    console.log('--> AuthHandler setCallbacks called');
+    loginSuccessCallback = onSuccess;
+    loginFailureCallback = onFailure;
+    handleChallengeCallback = onHandleChallenge;
+  }
+
+  // Reference: https://mobilefirstplatform.ibmcloud.com/tutorials/en/foundation/8.0/authentication-and-security/user-authentication/javascript/
+  checkIsLoggedIn() {
+    console.log('--> AuthHandler checkIsLoggedIn called');
+    WLAuthorizationManager.obtainAccessToken('UserLogin')
+    .then(
+      (accessToken) => {
+        console.log('--> obtainAccessToken onSuccess');
+      },
+      (error) => {
+        console.log('--> obtainAccessToken onFailure: ' + JSON.stringify(error));
+      }
+    );
+  }
+
+  login(username, password) {
+    console.log('--> AuthHandler login called');
+    console.log('--> isChallenged: ', isChallenged);
+    if (isChallenged) {
+      this.userLoginChallengeHandler.submitChallengeAnswer({'username':username, 'password':password});
+    } else {
+      WLAuthorizationManager.login(this.securityCheckName, {'username':username, 'password':password})
+      .then(
+        (success) => {
+          console.log('--> login success');
+        },
+        (failure) => {
+          console.log('--> login failure: ' + JSON.stringify(failure));
+        }
+      );
+    }
+  }
+
+  logout() {
+    console.log('--> AuthHandler logout called');
+    WLAuthorizationManager.logout(this.securityCheckName)
+    .then(
+      (success) => {
+        console.log('--> logout success');
+      },
+      (failure) => {
+        console.log('--> logout failure: ' + JSON.stringify(failure));
+      }
+    );
+  }</b>
+}
+</code></pre>
+
+
+### 6.4 Create login page
+
+#### 6.4.1 Create template
+
+```
+$ ionic generate page login
+[OK] Generated a page named login!
+```
+
+#### 6.4.2 Add Login UI
+
+Update `IonicMobileApp/src/pages/login/login.html` as below:
+
+<pre><code>
+&lt;/mfp:adapter&gt;</b>
+&lt;ion-header&gt;
+  &lt;ion-navbar&gt;
+    &lt;ion-title&gt;<b>Login</b>&lt;/ion-title&gt;
+  &lt;/ion-navbar&gt;
+&lt;/ion-header&gt;
+
+&lt;ion-content&gt;
+  <b>&lt;form (submit)="processForm()" [formGroup]="form"&gt;
+    &lt;ion-list&gt;
+      &lt;ion-item&gt;
+        &lt;ion-label fixed&gt;Username&lt;/ion-label&gt;
+        &lt;ion-input formControlName="username" type="text"&gt;&lt;/ion-input&gt;
+      &lt;/ion-item&gt;
+      &lt;ion-item&gt;
+        &lt;ion-label fixed&gt;Password&lt;/ion-label&gt;
+        &lt;ion-input formControlName="password" type="password"&gt;&lt;/ion-input&gt;
+      &lt;/ion-item&gt;
+    &lt;/ion-list&gt;
+    &lt;div padding&gt;
+      &lt;button ion-button block type="submit"&gt;Sign In&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/form&gt;</b>
+&lt;/ion-content&gt;
+</code></pre>
+
+#### 6.4.3 Add Login controller
+Add the code for handling pre-emptive login
+
+Update `IonicMobileApp/src/pages/login/login.ts` as below:
+
+<pre><code>
+import { Component } from '@angular/core';
+import { IonicPage, NavController, NavParams, AlertController } from 'ionic-angular';
+<b>import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { AuthHandlerProvider } from '../../providers/auth-handler/auth-handler';
+import { PeopleServiceProvider } from '../../providers/people-service/people-service';
+import { HomePage } from '../home/home';</b>
+
+@IonicPage()
+@Component({
+  selector: 'page-login',
+  templateUrl: 'login.html',
+})
+export class LoginPage {
+  <b>form;</b>
+
+  constructor(public navCtrl: NavController, public navParams: NavParams<b>,
+      public alertCtrl: AlertController,
+      private authHandler:AuthHandlerProvider,
+      private peopleServiceProvider:PeopleServiceProvider</b>) {
+    <b>console.log('--> LoginPage constructor() called');
+
+    this.form = new FormGroup({
+      username: new FormControl("", Validators.required),
+      password: new FormControl("", Validators.required)
+    });
+
+    this.authHandler.setCallbacks(
+      () =>  {
+        let view = this.navCtrl.getActive();
+        if (!(view.instance instanceof HomePage )) {
+          this.navCtrl.setRoot(HomePage);
+        }
+        this.peopleServiceProvider.setupDBSync();
+      }, (error) => {
+        if (error.failure !== null) {
+          this.showAlert(error.failure);
+        } else {
+          this.showAlert("Failed to login.");
+        }
+      }, () => {
+        // this.navCtrl.setRoot(Login);
+      });</b>
+  }
+
+  <b>processForm() {
+    // Reference: https://github.com/driftyco/ionic-preview-app/blob/master/src/pages/inputs/basic/pages.ts
+    let username = this.form.value.username;
+    let password = this.form.value.password;
+    if (username === "" || password === "") {
+      this.showAlert('Username and password are required');
+      return;
+    }
+    console.log('--> Sign-in with user: ', username);
+    this.authHandler.login(username, password);
+  }
+
+  showAlert(alertMessage) {
+    let prompt = this.alertCtrl.create({
+      title: 'Login Failure',
+      message: alertMessage,
+      buttons: [
+        {
+          text: 'Ok',
+        }
+      ]
+    });
+    prompt.present();
+  }</b>
+
+  ionViewDidLoad() {
+    console.log(<b>'--> LoginPage ionViewDidLoad() called'</b>);
+  }
+
+}
+</code></pre>
+
+#### 6.4.4 Show login page upon app launch
+
+Update `IonicMobileApp/src/app/app.module.ts` as below:
+
+<pre><code>
+...
+import { HomePage } from '../pages/home/home';
+<b>import { LoginPage } from '../pages/login/login';</b>
+import { PeopleServiceProvider } from '../providers/people-service/people-service';
+<b>import { AuthHandlerProvider } from '../providers/auth-handler/auth-handler';</b>
+
+@NgModule({
+  declarations: [
+    MyApp,
+    HomePage<b>,
+    LoginPage</b>
+  ],
+  ...
+  entryComponents: [
+    MyApp,
+    HomePage<b>,
+    LoginPage</b>
+  ],
+  providers: [
+    StatusBar,
+    SplashScreen,
+    {provide: ErrorHandler, useClass: IonicErrorHandler},
+    PeopleServiceProvider<b>,
+    AuthHandlerProvider</b>
+  ]
+})
+...
+</code></pre>
+
+Update `IonicMobileApp/src/app/app.component.ts` as below:
+
+<pre><code>
+...
+import { SplashScreen } from '@ionic-native/splash-screen';
+
+<b>import { LoginPage } from '../pages/login/login';
+import { AuthHandlerProvider } from '../providers/auth-handler/auth-handler';</b>
+...
+export class MyApp {
+  rootPage:any;
+
+  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen,
+    renderer: Renderer<b>, private authHandler: AuthHandlerProvider</b>) {
+    console.log('--> MyApp constructor() called');
+
+    renderer.listenGlobal('document', 'mfpjsloaded', () => {
+      console.log('--> MyApp mfpjsloaded');
+      <b>this.rootPage = LoginPage;
+      this.authHandler.init();</b>
+    })
+    ...
+  }
+}
+</code></pre>
+
+
+Update `IonicMobileApp/src/providers/people-service/people-service.ts` as below:
+<pre><code>
+...
+@Injectable()
+export class PeopleServiceProvider {
+...
+  constructor() {
+    ...
+    this.db.changes({live: true, since: 'now', include_docs: true}).on('change', (change) => {
+      this.handleChange(change);
+    });
+    <b>// this.setupDBSync();</b>
+  }
+...
+}
+</code></pre>
+
+
 # Troubleshooting
 
 ### Debugging Android hybrid app using Chrome Developer Tools
