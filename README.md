@@ -44,6 +44,14 @@ In this developer journey, we will show you how to combine the following technol
 5. [PouchDB Cloudant Offline Sync](#step-5-pouchdb-cloudant-offline-sync)
   - 5.1 [Add adapter function to return Cloudant credentials](#51-add-adapter-function-to-return-cloudant-credentials)
   - 5.2 [Add code to setup sync between PouchDB and Cloudant](#52-add-code-to-setup-sync-between-pouchdb-and-cloudant)
+6. [Add pre-emptive login](#step-6-add-pre-emptive-login)
+  - 6.1 [Add Security Adapter](#61-add-security-adapter)
+  - 6.2 [Secure peopleAdapter using UserLogin security check](#62-secure-peopleadapter-using-userlogin-security-check)
+  - 6.3 [Create a new provider to assist in handling MFP security challenges](#63-create-a-new-provider-to-assist-in-handling-mfp-security-challenges)
+  - 6.4 [Create login page](#64-create-login-page)
+7. [Support Offline Login](#step-7-support-offline-login)
+  - 7.1 [Save authenticated credentials in JSONStore and use it for offline login](#71-save-authenticated-credentials-in-jsonstore-and-use-it-for-offline-login)
+  - 7.2 [Update login page to call JSONStore based login when device is offline](#72-update-login-page-to-call-jsonstore-based-login-when-device-is-offline)
 
 [Troubleshooting](#troubleshooting)
 
@@ -1037,14 +1045,12 @@ export class AuthHandlerProvider {
 
 ### 6.4 Create login page
 
-#### 6.4.1 Create template
+#### 6.4.1 Add Login UI
 
 ```
 $ ionic generate page login
 [OK] Generated a page named login!
 ```
-
-#### 6.4.2 Add Login UI
 
 Update `IonicMobileApp/src/pages/login/login.html` as below:
 
@@ -1075,7 +1081,7 @@ Update `IonicMobileApp/src/pages/login/login.html` as below:
 &lt;/ion-content&gt;
 </code></pre>
 
-#### 6.4.3 Add Login controller
+#### 6.4.2 Add Login controller
 Add the code for handling pre-emptive login
 
 Update `IonicMobileApp/src/pages/login/login.ts` as below:
@@ -1157,7 +1163,7 @@ export class LoginPage {
 }
 </code></pre>
 
-#### 6.4.4 Show login page upon app launch
+#### 6.4.3 Show login page upon app launch
 
 Update `IonicMobileApp/src/app/app.module.ts` as below:
 
