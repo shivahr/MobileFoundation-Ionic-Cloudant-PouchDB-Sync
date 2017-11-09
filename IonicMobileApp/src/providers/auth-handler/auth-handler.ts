@@ -1,3 +1,5 @@
+/// <reference path="../../../plugins/cordova-plugin-mfp/typings/worklight.d.ts" />
+/// <reference path="../../../plugins/cordova-plugin-mfp-jsonstore/typings/jsonstore.d.ts" />
 import { Injectable } from '@angular/core';
 
 var isChallenged = false;
@@ -119,4 +121,65 @@ export class AuthHandlerProvider {
       }
     );
   }
+
+  userCredentialsCollectionName = 'userCredentials';
+  collections = {
+    userCredentials: {
+      searchFields: {username: 'string'}
+    }
+  }
+
+  storeCredentialsInJSONStore(username, password) {
+    console.log('--> storeCredentialsInJSONStore called');
+
+    let authData = {
+      username: username,
+      password: password,
+      localKeyGen: true
+    }
+
+    // https://www.ibm.com/support/knowledgecenter/en/SSHS8R_8.0.0/com.ibm.worklight.apiref.doc/html/refjavascript-client/html/WL.JSONStore.html
+    WL.JSONStore.closeAll({});
+    WL.JSONStore.init(this.collections, authData).then((success) => {
+      WL.JSONStore.get(this.userCredentialsCollectionName).count({}, {}).then((countResult) => {
+        if (countResult == 0) {
+          // The JSONStore collection is empty, populate it.
+          WL.JSONStore.get(this.userCredentialsCollectionName).add(authData, {});
+          console.log('--> JSONStore collection populated with user-credentials')
+        }
+      })
+    },(failure) => {
+      console.log('--> password change detected - destroying JSONStore to recreate it', failure)
+      WL.JSONStore.destroy(username);
+      this.storeCredentialsInJSONStore(username, password);
+    })
+  }
+
+  offlineLogin(username, password, loginSuccessCallback, loginFailureCallback) {
+    console.log('--> offlineLogin called');
+
+    let authData = {
+      username: username,
+      password: password,
+      localKeyGen: true
+    }
+
+    WL.JSONStore.closeAll({});
+    WL.JSONStore.init(this.collections, authData).then((success) => {
+      WL.JSONStore.get(this.userCredentialsCollectionName).count({}, {}).then((countResult) => {
+        if (countResult == 0) {
+          WL.JSONStore.destroy(username);
+          console.log('--> offlineLogin failed - First time login must be done when Internet connection is available')
+          loginFailureCallback({'failure': 'First time login must be done when Internet connection is available'});
+        } else {
+          console.log('--> offlineLogin success')
+          loginSuccessCallback();
+        }
+      })
+    },(failure) => {
+      console.log('--> offlineLogin failed - invalid username/password ', failure)
+      loginFailureCallback({'failure': 'invalid username/password'});
+    })
+  }
+
 }
