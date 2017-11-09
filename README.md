@@ -696,7 +696,7 @@ $ ionic cordova run android
 
 ### 5.1 Add adapter function to return Cloudant credentials
 
-* Update `MobileFirstAdapter/peopleAdapter/src/main/adapter-resources/adapter.xml` as below:
+* Update `MobileFirstAdapter/peopleAdapter/src/main/adapter-resources/adapter.xml` as below. Change `defaultValue` of `DB_username`, `DB_password` and `DB_url` to point to your Cloudant service. [Step 3.3.2](#332-point-the-created-adapter-to-your-cloudant-service-instance) gives instructions for getting the domain, username and password of your Cloudant service instance.
 
 <pre><code>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
@@ -704,9 +704,9 @@ $ ionic cordova run android
 ...
   &lt;procedure name="getPeople" /&gt;
   <b>&lt;procedure name="getCloudantCredentials" /&gt;
-  &lt;property name="DB_username" displayName="Database username" defaultValue="bfe1454d-10c7-493d-9d2a-db6459b01b68-bluemix"  /&gt;
-  &lt;property name="DB_password" displayName="Database password" defaultValue="2f146cb584b69ff6f25115fa20237f0e17f247d893cbc239d6e601474c4e4756"  /&gt;
-  &lt;property name="DB_url" displayName="Database URL" defaultValue="https://bfe1454d-10c7-493d-9d2a-db6459b01b68-bluemix.cloudant.com/employees"  /&gt;
+  &lt;property name="DB_username" displayName="Database username" defaultValue="YourCloudantUsername"  /&gt;
+  &lt;property name="DB_password" displayName="Database password" defaultValue="YourCloudantPassword"  /&gt;
+  &lt;property name="DB_url" displayName="Database URL" defaultValue="https://YourCloudantDomain-bluemix.cloudant.com/employees"  /&gt;
 &lt;/mfp:adapter&gt;</b>
 </code></pre>
 
