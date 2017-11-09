@@ -1235,6 +1235,185 @@ export class PeopleServiceProvider {
 }
 </code></pre>
 
+## Step 7 Support Offline Login
+
+### 7.1 Save authenticated credentials in JSONStore and use it for offline login
+
+Follow tutorial
+https://mobilefirstplatform.ibmcloud.com/tutorials/en/foundation/7.1/advanced-topics/offline-authentication/
+
+```
+$ ionic cordova plugin add cordova-plugin-mfp-jsonstore
+```
+
+Update `IonicMobileApp/src/providers/auth-handler/auth-handler.ts` as below:
+
+<pre><code>
+<b>/// &lt;reference path="../../../plugins/cordova-plugin-mfp/typings/worklight.d.ts" /&gt;
+/// &lt;reference path="../../../plugins/cordova-plugin-mfp-jsonstore/typings/jsonstore.d.ts" /&gt;</b>
+import { Injectable } from '@angular/core';
+...
+@Injectable()
+export class AuthHandlerProvider {
+  ...
+  logout() {
+    ...
+  }
+
+  <b>userCredentialsCollectionName = 'userCredentials';
+  collections = {
+    userCredentials: {
+      searchFields: {username: 'string'}
+    }
+  }
+
+  storeCredentialsInJSONStore(username, password) {
+    console.log('--> storeCredentialsInJSONStore called');
+
+    let authData = {
+      username: username,
+      password: password,
+      localKeyGen: true
+    }
+
+    // https://www.ibm.com/support/knowledgecenter/en/SSHS8R_8.0.0/com.ibm.worklight.apiref.doc/html/refjavascript-client/html/WL.JSONStore.html
+    WL.JSONStore.closeAll({});
+    WL.JSONStore.init(this.collections, authData).then((success) => {
+      WL.JSONStore.get(this.userCredentialsCollectionName).count({}, {}).then((countResult) => {
+        if (countResult == 0) {
+          // The JSONStore collection is empty, populate it.
+          WL.JSONStore.get(this.userCredentialsCollectionName).add(authData, {});
+          console.log('--> JSONStore collection populated with user-credentials')
+        }
+      })
+    },(failure) => {
+      console.log('--> password change detected - destroying JSONStore to recreate it', failure)
+      WL.JSONStore.destroy(username);
+      this.storeCredentialsInJSONStore(username, password);
+    })
+  }
+
+  offlineLogin(username, password, loginSuccessCallback, loginFailureCallback) {
+    console.log('--> offlineLogin called');
+
+    let authData = {
+      username: username,
+      password: password,
+      localKeyGen: true
+    }
+
+    WL.JSONStore.closeAll({});
+    WL.JSONStore.init(this.collections, authData).then((success) => {
+      WL.JSONStore.get(this.userCredentialsCollectionName).count({}, {}).then((countResult) => {
+        if (countResult == 0) {
+          WL.JSONStore.destroy(username);
+          console.log('--> offlineLogin failed - First time login must be done when Internet connection is available')
+          loginFailureCallback({'failure': 'First time login must be done when Internet connection is available'});
+        } else {
+          console.log('--> offlineLogin success')
+          loginSuccessCallback();
+        }
+      })
+    },(failure) => {
+      console.log('--> offlineLogin failed - invalid username/password ', failure)
+      loginFailureCallback({'failure': 'invalid username/password'});
+    })
+  }</b>
+}
+</code></pre>
+
+### 7.2 Update login page to call JSONStore based login when device is offline
+
+http://ionicframework.com/docs/native/network/
+
+Install the Cordova and Ionic plugins for Network information:
+```
+$ ionic cordova plugin add cordova-plugin-network-information
+$ npm install --save @ionic-native/network
+```
+
+Add the network plugin to your app's module. Update `IonicMobileApp/src/app/app.module.ts` as below:
+
+<pre><code>
+import { StatusBar } from '@ionic-native/status-bar';
+<b>import { Network } from '@ionic-native/network';</b>
+...
+@NgModule({
+  ...
+  providers: [
+    StatusBar,
+    SplashScreen,
+    <b>Network,</b>
+    ...
+  ]
+})
+...
+</code></pre>
+
+Update `IonicMobileApp/src/pages/login/login.ts` as below:
+
+<pre><code>
+...
+<b>import { Network } from '@ionic-native/network';</b>
+import { AuthHandlerProvider } from '../../providers/auth-handler/auth-handler';
+...
+export class LoginPage {
+  ...
+  constructor(public navCtrl: NavController, public navParams: NavParams, public alertCtrl: AlertController,
+    private authHandler:AuthHandlerProvider, private peopleServiceProvider:PeopleServiceProvider<b>, private network: Network</b>) {
+    ...
+    this.authHandler.setCallbacks(
+      () =>  {
+        // online login success call back
+        let view = this.navCtrl.getActive();
+        if (!(view.instance instanceof HomePage )) {
+          this.navCtrl.setRoot(HomePage);
+        }
+        <b>this.authHandler.storeCredentialsInJSONStore(this.form.value.username, this.form.value.password);</b>
+        this.peopleServiceProvider.setupDBSync();
+      }, (error) => {
+        ...
+      });
+  }
+
+  processForm() {
+    // Reference: https://github.com/driftyco/ionic-preview-app/blob/master/src/pages/inputs/basic/pages.ts
+    let username = this.form.value.username;
+    let password = this.form.value.password;
+    if (username === "" || password === "") {
+      this.showAlert('Username and password are required');
+      return;
+    }
+    <b>if (this.hasNetworkConnection()) {
+      console.log('--> Online sign-in with user: ', username);
+      this.authHandler.login(username, password);
+    } else {
+      console.log('--> Offline sign-in with user: ', username);
+      this.authHandler.offlineLogin(username, password, () => {
+        // offline login success call back
+        let view = this.navCtrl.getActive();
+        if (!(view.instance instanceof HomePage )) {
+          this.navCtrl.setRoot(HomePage);
+        }
+        // this.peopleServiceProvider.setupDBSync();
+      }, (error) => {
+        this.showAlert(error.failure);
+      });
+    }</b>
+  }
+
+  <b>hasNetworkConnection() {
+    // https://ionicframework.com/docs/native/network/
+    return this.network.type !== 'none';
+  }</b>
+
+  showAlert(alertMessage) {
+    ...
+  }
+  ...
+}
+</code></pre>
+
 
 # Troubleshooting
 
