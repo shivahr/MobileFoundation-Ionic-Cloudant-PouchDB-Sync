@@ -11,13 +11,13 @@ export class HomePage {
 
   constructor(public navCtrl: NavController, public peopleService: PeopleServiceProvider) {
     console.log('--> HomePage constructor() called');
-    this.peopleService.getData().then(data => {
-      this.people = data;
-    });
   }
 
   ionViewDidLoad() {
     console.log('--> HomePage ionViewDidLoad() called');
+    this.peopleService.getData().then(data => {
+      this.people = data;
+    });
   }
 
 }
