@@ -807,7 +807,7 @@ export class PeopleServiceProvider {
         include_docs: true
       }).then((result) => {
         this.data = [];
-        let docs = result.rows.map((row) => {
+        result.rows.map((row) => {
           this.data.push(row.doc);
         });
         resolve(this.data);
@@ -853,9 +853,14 @@ export class PeopleServiceProvider {
 export class HomePage {
   ...
   constructor(public navCtrl: NavController, public peopleService: PeopleServiceProvider) {
-    this.peopleService.<b>getData()</b>.then(data => {
+    <b>console.log('--> HomePage constructor() called');</b>
+  }
+
+  ionViewDidLoad() {
+    console.log('--> HomePage ionViewDidLoad() called');
+    <b>this.peopleService.getData().then(data => {
       this.people = data;
-    });
+    });</b>
   }
 }
 </code></pre>
@@ -1088,13 +1093,13 @@ Update `IonicMobileApp/src/pages/login/login.ts` as below:
 
 <pre><code>
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, AlertController } from 'ionic-angular';
+import { NavController, NavParams, AlertController } from 'ionic-angular';
 <b>import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { AuthHandlerProvider } from '../../providers/auth-handler/auth-handler';
 import { PeopleServiceProvider } from '../../providers/people-service/people-service';
 import { HomePage } from '../home/home';</b>
 
-@IonicPage()
+<b>// @IonicPage()</b>
 @Component({
   selector: 'page-login',
   templateUrl: 'login.html',
@@ -1165,6 +1170,8 @@ export class LoginPage {
 
 #### 6.4.3 Show login page upon app launch
 
+Delete `IonicMobileApp/src/pages/login/login.module.ts`
+
 Update `IonicMobileApp/src/app/app.module.ts` as below:
 
 <pre><code>
@@ -1207,7 +1214,7 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { AuthHandlerProvider } from '../providers/auth-handler/auth-handler';</b>
 ...
 export class MyApp {
-  rootPage:any;
+  <b>rootPage = LoginPage;</b>
 
   constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen,
     renderer: Renderer<b>, private authHandler: AuthHandlerProvider</b>) {
@@ -1215,7 +1222,7 @@ export class MyApp {
 
     renderer.listenGlobal('document', 'mfpjsloaded', () => {
       console.log('--> MyApp mfpjsloaded');
-      <b>this.rootPage = LoginPage;
+      <b>// this.rootPage = LoginPage;
       this.authHandler.init();</b>
     })
     ...
