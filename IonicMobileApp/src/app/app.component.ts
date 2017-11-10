@@ -10,7 +10,7 @@ import { AuthHandlerProvider } from '../providers/auth-handler/auth-handler';
   templateUrl: 'app.html'
 })
 export class MyApp {
-  rootPage:any;
+  rootPage = LoginPage;
 
   constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen,
     renderer: Renderer, private authHandler: AuthHandlerProvider) {
@@ -18,7 +18,7 @@ export class MyApp {
 
     renderer.listenGlobal('document', 'mfpjsloaded', () => {
       console.log('--> MyApp mfpjsloaded');
-      this.rootPage = LoginPage;
+      // this.rootPage = LoginPage;
       this.authHandler.init();
     })
 
