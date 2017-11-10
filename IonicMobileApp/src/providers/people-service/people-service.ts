@@ -54,7 +54,7 @@ export class PeopleServiceProvider {
         include_docs: true
       }).then((result) => {
         this.data = [];
-        let docs = result.rows.map((row) => {
+        result.rows.map((row) => {
           this.data.push(row.doc);
         });
         resolve(this.data);
