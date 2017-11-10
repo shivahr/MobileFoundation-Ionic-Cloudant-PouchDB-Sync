@@ -6,7 +6,6 @@ import { AuthHandlerProvider } from '../../providers/auth-handler/auth-handler';
 import { PeopleServiceProvider } from '../../providers/people-service/people-service';
 import { HomePage } from '../home/home';
 
-@IonicPage()
 @Component({
   selector: 'page-login',
   templateUrl: 'login.html',
