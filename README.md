@@ -882,7 +882,7 @@ $ mfpdev adapter deploy
 
 ### 6.2 Secure peopleAdapter using UserLogin security check
 
-Add scope element to peopleAdapter/getCloudantCredentials procedure
+#### 6.2.1 Restrict access for peopleAdapter/getCloudantCredentials procedure to only authenticated users
 
 Update `MobileFirstAdapter/peopleAdapter/src/main/adapter-resources/adapter.xml` as below:
 
@@ -902,11 +902,13 @@ Verify:
  - Go to MobileFirst Operations Console -> Adapters -> peopleAdapter -> Resources
  - Make sure 'Security' for '/getCloudantCredentials' URL is mentioned as 'restrictedData'
 
-Map 'restrictedData' scope element to UserLogin security check
+#### 6.2.2 Map restrictedData scope element to UserLogin security check
+
  - Go to MobileFirst Operations Console -> Applications -> MyApp -> Android -> Security -> Scope-Elements Mapping -> New
  - Scope element: restrictedData
  - Select 'UserLogin' under 'Custom Security Checks'
  - Click Add.
+
 Repeat above steps for Applications -> MyApp -> iOS.
 
 
@@ -1248,7 +1250,7 @@ export class PeopleServiceProvider {
 }
 </code></pre>
 
-## Step 7 Support Offline Login
+## Step 7. Support Offline Login
 
 ### 7.1 Save authenticated credentials in JSONStore and use it for offline login
 
@@ -1427,6 +1429,73 @@ export class LoginPage {
 }
 </code></pre>
 
+## Step 8. Update Mobile App ID, Name, Logo and Splash
+
+### 8.1 Update App ID, Name and Description
+Update `IonicMobileApp/config.xml` as below. Change `id`, `name`, `description` and `author` details appropriately.
+
+<pre><code>
+&lt;?xml version='1.0' encoding='utf-8'?&gt;
+&lt;widget id="org.mycity.myward" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:mfp="http://www.ibm.com/mobilefirst/cordova-plugin-mfp"&gt;
+    <b>&lt;name&gt;My Ward&lt;/name&gt;
+    &lt;description&gt;Get your civic issues resolved by posting through this app.&lt;/description&gt;
+    &lt;author email="shivahr@gmail.com" href="https://developer.ibm.com/code/author/shivahr/"&gt;Shiva Kumar H R&lt;/author&gt;</b>
+...
+</code></pre>
+
+### 8.2 Update App Logo and Splash
+
+Reference: Automating Icons and Splash Screens https://blog.ionic.io/automating-icons-and-splash-screens/
+
+Copy your desired app icon to `IonicMobileApp/resources/icon.png` and app splash to `IonicMobileApp/resources/splash.png`.
+
+```
+$ cd ../IonicMobileApp
+$ ionic cordova resources
+```
+
+For running `ionic cordova resources` command, you would need to sign up on ionicframework.com and specify the credentials on the command line.
+
+### 8.3 Re-register the app to MobileFoundation server
+Since the App ID has changed, you would need to re-register the app to MobileFoundation server.
+```
+$ mfpdev app register
+```
+
+Delete the older version of app (containing old App ID) from MobileFoundation server
+ * Go to MobileFirst Operations Console -> Applications -> MyApp -> Versions -> Delete -> Confirm.
+
+Re-map restrictedData scope element to UserLogin security check in the new app `My Ward` as instructed in [Step 6.2.2](#622-map-restricteddata-scope-element-to-userlogin-security-check).
+
+### 8.4 Fix issue where you see a blank screen after your splash screen disappears
+
+Reference: http://www.codingandclimbing.co.uk/blog/ionic-2-fix-splash-screen-white-screen-issue
+
+Update `IonicMobileApp/config.xml` as below:
+<pre><code>
+...
+&lt;widget id=...&gt;
+  &lt;preference name="SplashScreenDelay" value="<b>30000</b>" /&gt;
+  <b>&lt;preference name="AutoHideSplashScreen" value="false" /&gt;
+  &lt;preference name="FadeSplashScreen" value="false" /&gt;</b>
+  ...
+</code></pre>
+
+Update `IonicMobileApp/src/app/app.component.ts` as below:
+<pre><code>
+...
+export class MyApp {
+  ...
+    platform.ready().then(() => {
+      ...
+      statusBar.styleDefault();
+      <b>setTimeout(() => {
+        splashScreen.hide();
+      }, 100);</b>
+    });
+  }
+}
+</code></pre>
 
 # Troubleshooting
 
