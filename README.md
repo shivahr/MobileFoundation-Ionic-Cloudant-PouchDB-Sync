@@ -52,6 +52,7 @@ In this developer journey, we will show you how to combine the following technol
 7. [Support Offline Login](#step-7-support-offline-login)
   - 7.1 [Save authenticated credentials in JSONStore and use it for offline login](#71-save-authenticated-credentials-in-jsonstore-and-use-it-for-offline-login)
   - 7.2 [Update login page to call JSONStore based login when device is offline](#72-update-login-page-to-call-jsonstore-based-login-when-device-is-offline)
+8. [Update Mobile App ID, Name, Logo and Splash](#step-8-update-mobile-app-id-name-logo-and-splash)
 
 [Troubleshooting](#troubleshooting)
 
