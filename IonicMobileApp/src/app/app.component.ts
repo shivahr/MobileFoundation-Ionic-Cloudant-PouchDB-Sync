@@ -27,7 +27,9 @@ export class MyApp {
       // Here you can do any higher level native things you might need.
       console.log('--> MyApp platform.ready() called');
       statusBar.styleDefault();
-      splashScreen.hide();
+      setTimeout(() => {
+        splashScreen.hide();
+      }, 100);
     });
   }
 
