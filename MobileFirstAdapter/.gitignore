@@ -3,3 +3,6 @@
 
 target
 .mfp
+.classpath
+.project
+.settings
