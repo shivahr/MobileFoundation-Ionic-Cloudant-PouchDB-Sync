@@ -59,7 +59,6 @@ public class ObjectStorageAdapterResource {
 	/*
 	 * Path for method: "<server address>/mfp/api/adapters/ObjectStorageAdapter/getObjectStorageAuthToken"
 	 */
-
 	@ApiOperation(value = "Returns X-Auth-Token and URL of REST API endpoint for CRUD operations on objects", notes = "Append object name at the end of URL and specify X-Auth-Token as a header for REST API calls on objects.")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "A JSON object containing objectUrl and xAuthToken.") })
 	@GET
@@ -102,7 +101,7 @@ public class ObjectStorageAdapterResource {
 
 		result.put("xAuthToken", xAuthToken);
 		result.put("objectUrl", objectUrl);
-		return Response.ok(result).build();
+		return Response.ok(result, MediaType.APPLICATION_JSON).build();
 	}
 
 }
