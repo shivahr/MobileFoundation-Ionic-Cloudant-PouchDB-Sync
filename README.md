@@ -1063,7 +1063,6 @@ $ ionic generate page login
 Update `IonicMobileApp/src/pages/login/login.html` as below:
 
 <pre><code>
-&lt;/mfp:adapter&gt;</b>
 &lt;ion-header&gt;
   &lt;ion-navbar&gt;
     &lt;ion-title&gt;<b>Login</b>&lt;/ion-title&gt;
